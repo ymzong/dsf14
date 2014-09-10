@@ -1,35 +1,35 @@
 package com.yzong.dsf14.MigratableProcesses;
 
-import java.io.PrintStream;
-import java.io.EOFException;
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.lang.Thread;
-import java.lang.InterruptedException;
+import java.io.PrintStream;
 
 import com.yzong.dsf14.MigratableProcess;
 import com.yzong.dsf14.TransactionalFileInputStream;
 import com.yzong.dsf14.TransactionalFileOutputStream;
 
-public class GrepProcess implements MigratableProcess {
+public class CopyProcess implements MigratableProcess {
 
   private static final long serialVersionUID = 7199546965587806734L;
   private TransactionalFileInputStream inFile;
   private TransactionalFileOutputStream outFile;
-  private String query;
+  private String signature = "";
+  private int lineNum = 0;
+  private volatile boolean suspending = false;
 
-  private volatile boolean suspending;
-
-  public GrepProcess(String args[]) throws Exception {
+  public CopyProcess(String args[]) throws Exception {
     if (args.length != 3) {
-      System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
+      System.out.println("usage: CopyProcess <signature> <inputFile> <outputFile>");
       throw new Exception("Invalid Arguments");
     }
-    query = args[0];
-    inFile = new TransactionalFileInputStream(args[1]);
-    outFile = new TransactionalFileOutputStream(args[2], false);
+    this.signature = args[0];
+    this.inFile = new TransactionalFileInputStream(args[1]);
+    this.outFile = new TransactionalFileOutputStream(args[2], false);
+    this.lineNum = 0;
   }
 
+  @Override
   public void run() {
     PrintStream out = new PrintStream(outFile);
     DataInputStream in = new DataInputStream(inFile);
@@ -41,9 +41,9 @@ public class GrepProcess implements MigratableProcess {
         if (line == null)
           break;
 
-        if (line.contains(query)) {
-          out.println(line);
-        }
+        out.println(String.format("%d %s %s", lineNum, line, signature));
+        lineNum++;
+
         // Make the process longer
         try {
           Thread.sleep(100);
@@ -52,12 +52,13 @@ public class GrepProcess implements MigratableProcess {
       }
     } catch (EOFException e) {
     } catch (IOException e) {
-      System.out.println("GrepProcess: Error: " + e);
+      System.out.println("CopyProcess: Error: " + e);
     }
 
     suspending = false;
   }
 
+  @Override
   public void suspend() {
     suspending = true;
     while (suspending);

@@ -71,6 +71,7 @@ public class ProcManagerShell implements Runnable {
           if (success) {
             clientIdToHostname.put(child_id, child_hostname);
             clientIdToPort.put(child_id, child_port);
+            System.out.println("Node registered.");
           } else {
             System.out.printf("Operation failed -- Node %s:%d unreachable or occupied!\n",
                 child_hostname, child_port);
@@ -109,7 +110,6 @@ public class ProcManagerShell implements Runnable {
         String[] childrenIds =
             clientIdToHostname.keySet().toArray(new String[clientIdToHostname.size()]);
         for (String id : childrenIds) {
-          System.out.println("");
           reportJobStatus(clientIdToHostname.get(id), clientIdToPort.get(id));
         }
       }
@@ -250,6 +250,7 @@ public class ProcManagerShell implements Runnable {
     MasterToChildPackage pkg = new MasterToChildPackage("REPORT", null);
     ChildToMasterPackage reply = SendPackageToChild(child_hostname, child_port, pkg);
     if (reply != null) {
+      System.out.println("");
       System.out.println(reply.message);
     }
   }

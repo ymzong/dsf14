@@ -11,7 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import com.yzong.dsf14.MigratableProcesses.CopyProcess;
 import com.yzong.dsf14.MigratableProcesses.GrepProcess;
+import com.yzong.dsf14.MigratableProcesses.StatProcess;
 
 public class ChildManager implements Runnable {
 
@@ -187,7 +189,6 @@ public class ChildManager implements Runnable {
       // Terminate Child Node itself.
       response = new ChildToMasterPackage("KILLALL", "OK", "OK");
       System.out.println("Info: Successfully KILLALL and terminated Child Node.");
-      System.exit(0);
     } else {
       System.out.printf("Error: Master Node sent an unknown command %s!\n", pkg.command);
     }
@@ -197,6 +198,8 @@ public class ChildManager implements Runnable {
   public void run() {
     // Before all, load job list.
     jobNameToJob.put("GrepProcess", GrepProcess.class);
+    jobNameToJob.put("CopyProcess", CopyProcess.class);
+    jobNameToJob.put("StatProcess", StatProcess.class);
     // Starting up child server.
     System.out.printf("Starting up Child Manager at port %d...\n", localPort);
     ServerSocket serverSocket = null;
