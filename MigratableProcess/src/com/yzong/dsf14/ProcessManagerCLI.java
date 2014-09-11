@@ -42,11 +42,7 @@ public class ProcessManagerCLI {
     }
     // Process Manager case.
     if (cmd.hasOption("m") && !cmd.hasOption("c")) {
-      // First attempt to start the server.
-      ProcessManagerServer pms = new ProcessManagerServer(localPort);
-      Thread pmsThread = new Thread(pms);
-      pmsThread.start();
-      // If succeed, bring up the shell for user to operate.
+      // Bring up the shell for user to engage.
       ProcManagerShell pm = new ProcManagerShell(localhost, localPort);
       Thread pmThread = new Thread(pm);
       pmThread.start();

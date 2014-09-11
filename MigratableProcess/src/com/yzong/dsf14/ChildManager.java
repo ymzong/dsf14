@@ -17,6 +17,7 @@ import com.yzong.dsf14.MigratableProcesses.StatProcess;
 
 public class ChildManager implements Runnable {
 
+  private boolean isAlive = true;
   private String remoteHost = null;
   private int remotePort = -1;
   private int localPort;
@@ -31,6 +32,7 @@ public class ChildManager implements Runnable {
 
   public ChildManager(int lPort) {
     this.localPort = lPort;
+    this.isAlive = true;
   }
 
   @SuppressWarnings("deprecation")
@@ -81,6 +83,7 @@ public class ChildManager implements Runnable {
       }
       response = new ChildToMasterPackage("REPORT", "OK", statusReport);
       System.out.println("Info: Handled REPORT request from Master.");
+    // Handle task running request.
     } else if (pkg.command.equals("RUN")) {
       String className = (String) pkg.argv[0];
       String[] argv = (String[]) pkg.argv[1];
@@ -113,6 +116,7 @@ public class ChildManager implements Runnable {
           e.printStackTrace();
         }
       }
+    // Handle job pulling request (first half of job migration).
     } else if (pkg.command.equals("PULL")) {
       String taskId = (String) pkg.argv[0];
       if (!taskIdToThread.containsKey(taskId)) {
@@ -140,6 +144,7 @@ public class ChildManager implements Runnable {
         response.setArgv(argv);
         System.out.printf("Info: Task with ID %s was PULLed by master node.\n", taskId);
       }
+    // Handle job pushing request (second half of job migration).
     } else if (pkg.command.equals("PUSH")) {
       String taskId = (String) pkg.argv[0];
       String taskJobName = (String) pkg.argv[1];
@@ -152,6 +157,7 @@ public class ChildManager implements Runnable {
       taskThread.start();
       response = new ChildToMasterPackage("PUSH", "OK", "OK");
       System.out.printf("Info: Resumed task %s with ID %s.\n", taskJobName, taskId);
+    // Handle job kill request.
     } else if (pkg.command.equals("KILL")) {
       String taskId = (String) pkg.argv[0];
       if (!taskIdToThread.containsKey(taskId)) {
@@ -187,6 +193,7 @@ public class ChildManager implements Runnable {
         }
       }
       // Terminate Child Node itself.
+      this.isAlive = false;
       response = new ChildToMasterPackage("KILLALL", "OK", "OK");
       System.out.println("Info: Successfully KILLALL and terminated Child Node.");
     } else {
@@ -205,7 +212,7 @@ public class ChildManager implements Runnable {
     ServerSocket serverSocket = null;
     try {
       serverSocket = new ServerSocket(localPort);
-      while (true) {
+      while (this.isAlive) {
         try {
           Socket clientSocket = serverSocket.accept();
           ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
@@ -226,6 +233,7 @@ public class ChildManager implements Runnable {
         serverSocket.close();
       } catch (IOException e) {
       }
+      System.out.println("Goodbye!");
     }
   }
 

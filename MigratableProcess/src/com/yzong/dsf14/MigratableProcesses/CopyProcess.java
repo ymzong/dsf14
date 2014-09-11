@@ -46,7 +46,7 @@ public class CopyProcess implements MigratableProcess {
 
         // Make the process longer
         try {
-          Thread.sleep(100);
+          Thread.sleep(300);
         } catch (InterruptedException e) {
         }
       }
