@@ -74,8 +74,7 @@ public class ChildManager implements Runnable {
     else if (pkg.command.equals("REPORT")) {
       String statusReport = "";
       statusReport += String.format("Child Name: %s\n", this.childName);
-      statusReport += String.format("Registered Master Hostname: %s\n", this.remoteHost);
-      statusReport += String.format("Registered Master Port: %d\n", this.remotePort);
+      statusReport += String.format("Registered Master Hostname/Port: %s:%d\n", this.remoteHost, this.remotePort);
       statusReport += String.format("Active Job List: (Number of Jobs: %d)\n", taskIdToName.size());
       for (String taskId : taskIdToName.keySet()) {
         statusReport +=

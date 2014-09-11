@@ -12,7 +12,14 @@
 lib/*
 bin/*
 
+# Metadata from Eclipse Project
+.metadata/*
+RemoteSystemsTempFiles/**
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-RemoteSystemsTempFiles/**
+# Only publish pdf for reportrs
+reports/*
+!reports/*.pdf
+

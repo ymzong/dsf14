@@ -110,6 +110,7 @@ public class ProcManagerShell implements Runnable {
         String[] childrenIds =
             clientIdToHostname.keySet().toArray(new String[clientIdToHostname.size()]);
         for (String id : childrenIds) {
+          System.out.println(String.format("\nChild Hostname/Port: %s:%d", clientIdToHostname.get(id), clientIdToPort.get(id)));
           reportJobStatus(clientIdToHostname.get(id), clientIdToPort.get(id));
         }
       }
@@ -146,7 +147,7 @@ public class ProcManagerShell implements Runnable {
       else if (command[0].equals("transfer")) {
         if (tokenLen != 4) {
           System.out.println("Incorrect number of arguments!");
-          System.out.println("Usage: \t transfer <task_name> <src_child_id> <dest_child_id>");
+          System.out.println("Usage: \t transfer <task_id> <src_child_id> <dest_child_id>");
         } else if (!clientIdToHostname.containsKey(command[2])
             || !clientIdToHostname.containsKey(command[3])) {
           System.out.println("Bad source/destination child node name!");
@@ -181,7 +182,7 @@ public class ProcManagerShell implements Runnable {
         }
       }
       // Handle job-termination command, in the format of:
-      // kill <child_id> <task_name>
+      // kill <child_id> <task_id>
       else if (command[0].equals("kill")) {
         if (tokenLen != 3) {
           System.out.println("Incorrect number of arguments!");
@@ -219,8 +220,7 @@ public class ProcManagerShell implements Runnable {
             child_hostname, child_port);
       }
     }
-    System.out.println("Done!");
-    System.out.println("Goodbye.");
+    System.out.println("Done! Goodbye.");
     System.exit(0);
   }
 
@@ -250,7 +250,6 @@ public class ProcManagerShell implements Runnable {
     MasterToChildPackage pkg = new MasterToChildPackage("REPORT", null);
     ChildToMasterPackage reply = SendPackageToChild(child_hostname, child_port, pkg);
     if (reply != null) {
-      System.out.println("");
       System.out.println(reply.message);
     }
   }
