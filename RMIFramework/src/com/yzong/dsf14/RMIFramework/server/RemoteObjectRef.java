@@ -35,7 +35,7 @@ public class RemoteObjectRef {
    * 
    * @return Stub object corresponding to the Remote Object Reference.
    */
-  Object localize() {
+  public Object localize() {
     Class c;
     try {
       c = Class.forName(RemoteInterfaceName + "_stub");

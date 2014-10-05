@@ -27,12 +27,12 @@ public class TestRMIRegistry {
     System.out.println("Testing LOOKUP");
     RemoteObjectRef ror = rmic.lookup("foobarService");
     assert (ror.getHostName().equals("dummy.host"));
-    assert (ror.getObjHash().equals("objectKey1"));
+    assert (ror.getObjKey().equals("objectKey1"));
     assert (ror.getPort() == 10000);
     assert (ror.getRemoteInterfaceName().equals("foobarServiceIntf"));
     ror = rmic.lookup("foooooService");
     assert (ror.getHostName().equals("dummy.host.1"));
-    assert (ror.getObjHash().equals("objectKey2"));
+    assert (ror.getObjKey().equals("objectKey2"));
     assert (ror.getPort() == 10001);
     assert (ror.getRemoteInterfaceName().equals("foooooServiceIntf"));
 
@@ -43,7 +43,7 @@ public class TestRMIRegistry {
         "foobarServiceIntfModified").equals(""));
     ror = rmic.lookup("foobarService");
     assert (ror.getHostName().equals("modified.host"));
-    assert (ror.getObjHash().equals("objectKey9"));
+    assert (ror.getObjKey().equals("objectKey9"));
     assert (ror.getPort() == 12345);
     assert (ror.getRemoteInterfaceName().equals("foobarServiceIntfModified"));
 

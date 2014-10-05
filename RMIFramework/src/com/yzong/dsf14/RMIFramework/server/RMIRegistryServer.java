@@ -133,10 +133,10 @@ public class RMIRegistryServer implements Runnable {
             out.println("FOUND");
             out.println(ror.getHostName());
             out.println(ror.getPort());
-            out.println(ror.getObjHash());
+            out.println(ror.getObjKey());
             out.println(ror.getRemoteInterfaceName());
             System.out.printf("INFO -- Successfully LOOKUP Service Name \"%s\":{%s, %d, %s, %s}\n",
-                srvName, ror.getHostName(), ror.getPort(), ror.getObjHash(),
+                srvName, ror.getHostName(), ror.getPort(), ror.getObjKey(),
                 ror.getRemoteInterfaceName());
           }
         }

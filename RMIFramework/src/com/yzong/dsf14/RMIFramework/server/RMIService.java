@@ -2,8 +2,6 @@ package com.yzong.dsf14.RMIFramework.server;
 
 import java.net.ServerSocket;
 
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class RMIService {
@@ -38,13 +36,12 @@ public class RMIService {
     try {
       ServerSocket srvSocket = new ServerSocket(LocalPort);
       while (true) {
-        
+
       }
     } catch (Exception e) {
       System.err.println("ERROR -- Network I/O error occured!\n");
       return;
     }
-    return;
   }
 
 }
