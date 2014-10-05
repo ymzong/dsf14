@@ -4,7 +4,7 @@ public class RemoteObjectRef {
 
   private String HostName;
   private int Port;
-  private String ObjHash;
+  private String ObjKey;
   private String RemoteInterfaceName;
 
   public String getHostName() {
@@ -15,8 +15,8 @@ public class RemoteObjectRef {
     return Port;
   }
 
-  public String getObjHash() {
-    return ObjHash;
+  public String getObjKey() {
+    return ObjKey;
   }
 
   public String getRemoteInterfaceName() {
@@ -26,7 +26,7 @@ public class RemoteObjectRef {
   public RemoteObjectRef(String host, int port, String objHash, String riName) {
     this.HostName = host;
     this.Port = port;
-    this.ObjHash = objHash;
+    this.ObjKey = objHash;
     this.RemoteInterfaceName = riName;
   }
 
@@ -36,6 +36,13 @@ public class RemoteObjectRef {
    * @return Stub object corresponding to the Remote Object Reference.
    */
   Object localize() {
-    return null;
+    Class c;
+    try {
+      c = Class.forName(RemoteInterfaceName + "_stub");
+      Object obj = c.newInstance();
+      return obj;
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
