@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="RMIFramework">
+	<property environment="env" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.7" />
+	<property name="source" value="1.7" />
+	<path id="RMIFramework.classpath">
+		<pathelement location="bin" />
+		<pathelement location="lib/commons-cli-1.2-javadoc.jar" />
+		<pathelement location="lib/commons-cli-1.2-sources.jar" />
+		<pathelement location="lib/commons-cli-1.2.jar" />
+		<pathelement location="lib/commons-lang3-3.3.2-javadoc.jar" />
+		<pathelement location="lib/commons-lang3-3.3.2.jar" />
+	</path>
+	<target name="init">
+		<mkdir dir="bin" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	<target name="clean">
+		<delete dir="bin" />
+		<delete>
+			<fileset dir=".">
+				<include name="*.jar" />
+			</fileset>
+		</delete>
+	</target>
+	<target depends="clean" name="cleanall" />
+	<target depends="build-subprojects,build-project" name="build" />
+	<target name="build-subprojects" />
+	<target depends="init" name="build-project">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="RMIFramework.classpath" />
+		</javac>
+	</target>
+	<target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects" />
+	<target name="RMIRegistry">
+		<java classname="com.yzong.dsf14.RMIFramework.server.RMIRegistry" failonerror="true" fork="yes">
+			<classpath refid="RMIFramework.classpath" />
+		</java>
+	</target>
+	<target name="TestRMIRegistry">
+		<java classname="com.yzong.dsf14.RMIFramework.client.TestRMIRegistry" failonerror="true" fork="yes">
+			<classpath refid="RMIFramework.classpath" />
+		</java>
+	</target>
+	<target name="JarRMIRegistry">
+		<jar destfile="RMIRegistry.jar" basedir="bin">
+			<zipgroupfileset dir="lib" includes="*" />
+			<manifest>
+				<attribute name="Main-Class" value="com.yzong.dsf14.RMIFramework.server.RMIRegistry" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+		</jar>
+	</target>
+	<target name="JarTestRMIRegistry">
+		<jar destfile="RMITestRegistry.jar" basedir="bin">
+			<zipgroupfileset dir="lib" includes="*" />
+			<manifest>
+				<attribute name="Main-Class" value="com.yzong.dsf14.RMIFramework.client.TestRMIRegistry" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+		</jar>
+	</target>
+</project>

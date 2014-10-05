@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 /**
  * This class holds the representation of RMI Registry Table by the RMI Registry.
+ * It is essentially a HashMap from Service Names to RoRs.
  * 
  * @author Jimmy Zong
  */
