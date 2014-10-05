@@ -17,33 +17,33 @@ public class TestRMIRegistry {
     assert(rmic.ping());
 
     System.out.println("Testing BIND...");
-    assert (rmic.bind("foobarService", "dummy.host", 10000, "objectKey1", "foobarServiceIntf")
+    assert (rmic.bind("foobarService", "dummy.host", 10000, 0xc0ffee, "foobarServiceIntf")
         .equals(""));
-    assert (!rmic.bind("foobarService", "dummy.host", 10000, "objectKey1", "foobarServiceIntf")
+    assert (!rmic.bind("foobarService", "dummy.host", 10000, 0xc0ffee, "foobarServiceIntf")
         .equals(""));
-    assert (rmic.bind("foooooService", "dummy.host.1", 10001, "objectKey2", "foooooServiceIntf")
+    assert (rmic.bind("foooooService", "dummy.host.1", 10001, 0x0000beef, "foooooServiceIntf")
         .equals(""));
 
     System.out.println("Testing LOOKUP");
     RemoteObjectRef ror = rmic.lookup("foobarService");
     assert (ror.getHostName().equals("dummy.host"));
-    assert (ror.getObjKey().equals("objectKey1"));
+    assert (ror.getObjKey() == 0xc0ffee);
     assert (ror.getPort() == 10000);
     assert (ror.getRemoteInterfaceName().equals("foobarServiceIntf"));
     ror = rmic.lookup("foooooService");
     assert (ror.getHostName().equals("dummy.host.1"));
-    assert (ror.getObjKey().equals("objectKey2"));
+    assert (ror.getObjKey() == 0x0000beef);
     assert (ror.getPort() == 10001);
     assert (ror.getRemoteInterfaceName().equals("foooooServiceIntf"));
 
     System.out.println("Testing REBIND");
-    assert (rmic.bind("foobarService", "modified.host", 12345, "objectKey9",
+    assert (rmic.bind("foobarService", "modified.host", 12345, 0x0000FFFF,
         "foobarServiceIntfModified").equals("Service Name \"foobarService\" already exists!"));
-    assert (rmic.rebind("foobarService", "modified.host", 12345, "objectKey9",
+    assert (rmic.rebind("foobarService", "modified.host", 12345, 0x0000DDDD,
         "foobarServiceIntfModified").equals(""));
     ror = rmic.lookup("foobarService");
     assert (ror.getHostName().equals("modified.host"));
-    assert (ror.getObjKey().equals("objectKey9"));
+    assert (ror.getObjKey() == 0x0000DDDD);
     assert (ror.getPort() == 12345);
     assert (ror.getRemoteInterfaceName().equals("foobarServiceIntfModified"));
 

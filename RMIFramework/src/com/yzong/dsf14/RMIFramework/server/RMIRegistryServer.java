@@ -96,7 +96,8 @@ public class RMIRegistryServer implements Runnable {
           String remoteInterfaceName = in.readLine();
           /* Check for insufficient or invalid arguments. */
           if (srvName == null || IPAddr == null || port == null || objKey == null
-              || remoteInterfaceName == null || !NumberUtils.isNumber(port)) {
+              || remoteInterfaceName == null || !NumberUtils.isNumber(port)
+              || !NumberUtils.isNumber(objKey)) {
             out.println("ERROR");
             out.printf("Invalid arguments for %s!\n", command);
             System.out.printf("ERROR -- %s request contains invalid arguments!\n", command);
@@ -111,7 +112,7 @@ public class RMIRegistryServer implements Runnable {
           /* Otherwise, update the Registry with the desired (srvName, RoR) pair. */
           else {
             RemoteObjectRef ror =
-                new RemoteObjectRef(IPAddr, Integer.parseInt(port), objKey, remoteInterfaceName);
+                new RemoteObjectRef(IPAddr, Integer.parseInt(port), Long.parseLong(objKey), remoteInterfaceName);
             RoRTable.remove(srvName);
             RoRTable.put(srvName, ror);
             out.println("OK");

@@ -15,7 +15,6 @@ package com.yzong.dsf14.RMIFramework.examples;
 import java.io.*;
 
 import com.yzong.dsf14.RMIFramework.server.LocateRMIRegistry;
-import com.yzong.dsf14.RMIFramework.server.RMIRegistry;
 import com.yzong.dsf14.RMIFramework.server.RMIRegistryClient;
 import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
 
@@ -52,6 +51,7 @@ public class ZipCodeClient {
       else
         l = new ZipCodeList(city.trim(), code.trim(), l);
     }
+    in.close();
     // the final value of l should be the initial head of
     // the list.
 

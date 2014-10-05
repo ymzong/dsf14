@@ -114,7 +114,7 @@ public class RMIRegistryClient {
    * @param remoteInterfaceName
    * @return Empty string if succeeded, otherwise the error message.
    */
-  public String bind(String serviceName, String hostName, int port, String objectKey,
+  public String bind(String serviceName, String hostName, int port, long objectKey,
       String remoteInterfaceName) {
     try {
       Socket clientSocket = new Socket(HostName, Port);
@@ -151,7 +151,7 @@ public class RMIRegistryClient {
    * @param remoteInterfaceName
    * @return Empty string if succeeded, otherwise the error message.
    */
-  public String rebind(String serviceName, String hostName, int port, String objectKey,
+  public String rebind(String serviceName, String hostName, int port, long objectKey,
       String remoteInterfaceName) {
     try {
       Socket clientSocket = new Socket(HostName, Port);
@@ -199,7 +199,7 @@ public class RMIRegistryClient {
       String objKey = in.readLine();
       String remoteInterfaceName = in.readLine();
       clientSocket.close();
-      return new RemoteObjectRef(hostName, Integer.parseInt(port), objKey, remoteInterfaceName);
+      return new RemoteObjectRef(hostName, Integer.parseInt(port), Long.parseLong(objKey), remoteInterfaceName);
     } catch (Exception e) {
       return null;
     }

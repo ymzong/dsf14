@@ -36,7 +36,7 @@ public class RMIService {
     try {
       ServerSocket srvSocket = new ServerSocket(LocalPort);
       while (true) {
-
+        // Function invocations.
       }
     } catch (Exception e) {
       System.err.println("ERROR -- Network I/O error occured!\n");

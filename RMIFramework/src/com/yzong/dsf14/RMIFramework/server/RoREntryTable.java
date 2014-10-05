@@ -10,10 +10,12 @@ import java.util.Hashtable;
  */
 public class RoREntryTable {
 
-  private static Hashtable<RemoteObjectRef, Object> EntryTable;
-
+  private Hashtable<RemoteObjectRef, Object> EntryTable;
+  private long ObjectCounter;
+  
   public RoREntryTable() {
     this.EntryTable = new Hashtable<RemoteObjectRef, Object>();
+    this.ObjectCounter = 0;
   }
 
   /**
@@ -22,8 +24,10 @@ public class RoREntryTable {
    * @param port
    * @param o
    */
-  public void addObj(Object o) {
-    o.getClass();
+  public void addObj(String hostName, int port, Object o) {
+    String className = o.getClass().getName();
+    EntryTable.put(new RemoteObjectRef(hostName, port, ObjectCounter, className), o);
+    ObjectCounter++;
   }
 
   public Object findObj(RemoteObjectRef ror) {
