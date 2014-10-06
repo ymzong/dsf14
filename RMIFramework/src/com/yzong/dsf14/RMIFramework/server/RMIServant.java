@@ -1,17 +1,18 @@
 package com.yzong.dsf14.RMIFramework.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.apache.commons.lang3.math.NumberUtils;
+
+import com.yzong.dsf14.RMIFramework.examples.ZipCodeServer;
 
 /**
  * This class contains the entry point for an RMI Servant. It maintains a Hashtable from Remote
@@ -21,7 +22,7 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @author Jimmy Zong <yzong@cmu.edu>
  *
  */
-public class RMIService {
+public class RMIServant {
 
   private static String ServiceName;
   private static String ClassName;
@@ -63,6 +64,16 @@ public class RMIService {
       System.err.println("ERROR -- Cannot get local host name!");
       return;
     }
+    /* Compiles Local Stub of the Remote Object. */
+    if (remoteImpl.getInterfaces().length != 1) {
+      System.err
+          .println("ERROR -- Cannot determine the interface of the Remote Object (only one interface permitted)!");
+      return;
+    }
+    Class<?> remoteIntf = remoteImpl.getInterfaces()[0];
+    InvocationHandler handler = new RMIMethodHandler();
+    remoteIntf.cast(Proxy.newProxyInstance(remoteIntf.getClassLoader(),
+            new Class[] {remoteIntf}, handler)).getClass();
     /* Initializes RoR table with the Remote Object. */
     RoREntryTable tbl = new RoREntryTable();
     long objKey = tbl.addObj(LocalHostName, LocalPort, remoteImpl);
