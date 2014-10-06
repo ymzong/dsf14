@@ -7,6 +7,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class provides methods to interact with an RMI Registry Server from a client's perspective.
+ * 
+ * @author Jimmy Zong <yzong@cmu.edu>
+ *
+ */
 public class RMIRegistryClient {
 
   private String HostName;
@@ -104,14 +110,14 @@ public class RMIRegistryClient {
   }
 
   /**
-   * Binds a service along with its properties to RMI Registry. Returns an error if the given
+   * Binds a service along with its properties to RMI Registry. Reports an error if the given
    * Service Name already exists in the Registry.
    * 
-   * @param serviceName
-   * @param hostName
-   * @param port
-   * @param objectKey
-   * @param remoteInterfaceName
+   * @param serviceName Service Name of the object in RMI Registry
+   * @param hostName Host name of the RMI Servant
+   * @param port Port number of the RMI Servant
+   * @param objectKey Object Key of the RMI Object
+   * @param remoteInterfaceName Remote Interfact Name of the RMI Object
    * @return Empty string if succeeded, otherwise the error message.
    */
   public String bind(String serviceName, String hostName, int port, long objectKey,
@@ -144,11 +150,11 @@ public class RMIRegistryClient {
    * Binds a service along with its properties to RMI Registry. Overwrites the original entry if the
    * given Service Name already exists in the Registry.
    * 
-   * @param serviceName
-   * @param hostName
-   * @param port
-   * @param objectKey
-   * @param remoteInterfaceName
+   * @param serviceName Service Name of the object in RMI Registry
+   * @param hostName Host name of the RMI Servant
+   * @param port Port number of the RMI Servant
+   * @param objectKey Object Key of the RMI Object
+   * @param remoteInterfaceName Remote Interfact Name of the RMI Object
    * @return Empty string if succeeded, otherwise the error message.
    */
   public String rebind(String serviceName, String hostName, int port, long objectKey,
@@ -180,7 +186,8 @@ public class RMIRegistryClient {
    * Looks up the RMI Registry for the Remote Object Reference with the given Service Name.
    * 
    * @param serviceName Service Name to look up
-   * @return The Remote Object Reference if the Service Name exists; otherwise <tt>null</tt>.
+   * @return The corresponding Remote Object Reference if the Service Name exists; otherwise
+   *         <tt>null</tt>.
    */
   public RemoteObjectRef lookup(String serviceName) {
     try {
@@ -199,7 +206,8 @@ public class RMIRegistryClient {
       String objKey = in.readLine();
       String remoteInterfaceName = in.readLine();
       clientSocket.close();
-      return new RemoteObjectRef(hostName, Integer.parseInt(port), Long.parseLong(objKey), remoteInterfaceName);
+      return new RemoteObjectRef(hostName, Integer.parseInt(port), Long.parseLong(objKey),
+          remoteInterfaceName);
     } catch (Exception e) {
       return null;
     }

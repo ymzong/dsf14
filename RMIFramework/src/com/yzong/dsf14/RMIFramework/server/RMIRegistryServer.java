@@ -10,10 +10,10 @@ import java.util.Hashtable;
 import org.apache.commons.lang3.math.NumberUtils;
 
 /**
- * Runnable class for RMI Registry Server. It handles various client commands to interact with the
- * RMI Registry.
+ * Runnable class for RMI Registry Server. It handles various client commands issued by
+ * <tt>RMIRegistryClient</tt> to interact with the Registry.
  * 
- * @author Jimmy Zong
+ * @author Jimmy Zong <yzong@cmu.edu>
  *
  */
 public class RMIRegistryServer implements Runnable {
@@ -29,18 +29,23 @@ public class RMIRegistryServer implements Runnable {
   }
 
   /**
-   * This is the main function for RMI Registry Server. It handles the following commands:
+   * Main loop for RMI Registry Server. It handles the following commands:
    * <ul>
-   * <li>ping: When a client tests if the Registry is alive. Always reply "PONG";</li>
-   * <li>list: When a client queries for all Services. Reply ["OK", number of SrvNames, Srv
-   * Names...];</li>
-   * <li>unbind: When a client unbinds a Service Name. Reply [{"OK", "ERROR"}, [message]];</li>
-   * <li>bind: When a client wants to register an (inexistent) Service Name. Reply [{"OK", "ERROR"},
-   * [message]];</li>
-   * <li>rebind: When a client wants to <i>force</i> register Service Name. Reply [{"OK", "ERROR"},
-   * [message]];</li>
-   * <li>lookup: When a wants to query for specific Service Name. Reply [{"FOUND", "NOTFOUND",
-   * "ERROR"}, {[message], [IP, Port, ObjKey, RemoteInterfaceName]}];</li>
+   * <li><tt>ping</tt>: When a client tests if the Registry is alive. Always reply <tt>PONG</tt>;</li>
+   * <li><tt>list</tt>: When a client queries for all Services. Reply
+   * <tt>["OK", number of SrvNames, Srv
+   * Names...]</tt>;</li>
+   * <li><tt>unbind</tt>: When a client unbinds a Service Name. Reply
+   * <tt>[{"OK", "ERROR"}, [message]]</tt>;</li>
+   * <li>
+   * <tt>bind<tt>: When a client wants to register an (inexistent) Service Name. Reply <tt>[{"OK", "ERROR"},
+   * [message]]</tt>;</li>
+   * <li><tt>rebind</tt>: When a client wants to <i>force</i> register a Service Name. Reply
+   * <tt>[{"OK", "ERROR"},
+   * [message]]</tt>;</li>
+   * <li><tt>lookup</tt>: When a client wants to query for a specific Service Name. Reply
+   * <tt>[{"FOUND",
+   * "NOTFOUND", "ERROR"}, {[message], [IP, Port, ObjKey, RemoteInterfaceName]}]</tt>;</li>
    * </ul>
    */
   @Override
@@ -112,7 +117,8 @@ public class RMIRegistryServer implements Runnable {
           /* Otherwise, update the Registry with the desired (srvName, RoR) pair. */
           else {
             RemoteObjectRef ror =
-                new RemoteObjectRef(IPAddr, Integer.parseInt(port), Long.parseLong(objKey), remoteInterfaceName);
+                new RemoteObjectRef(IPAddr, Integer.parseInt(port), Long.parseLong(objKey),
+                    remoteInterfaceName);
             RoRTable.remove(srvName);
             RoRTable.put(srvName, ror);
             out.println("OK");

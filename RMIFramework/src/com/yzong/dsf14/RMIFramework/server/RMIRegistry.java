@@ -10,6 +10,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.math.NumberUtils;
 
+/**
+ * This class contains the entry point of <tt>RMI Registry Server</tt>. It parses command-line
+ * arguments and starts the Registry in another thread.
+ * 
+ * @author Jimmy Zong <yzong@cmu.edu>
+ *
+ */
 public class RMIRegistry {
 
   static void displayHelp(Options ops) {
@@ -18,6 +25,12 @@ public class RMIRegistry {
     System.exit(1);
   }
 
+  /**
+   * Entry point for RMI Registry Server.
+   * 
+   * @param args Should be "<tt>-p portNum</tt>".
+   * @throws UnknownHostException When the local host name cannot be obtained.
+   */
   public static void main(String[] args) throws UnknownHostException {
     Options cliOptions = new Options();
     cliOptions.addOption("p", true, "port for RMI Registry");

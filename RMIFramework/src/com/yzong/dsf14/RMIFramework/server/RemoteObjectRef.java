@@ -1,5 +1,12 @@
 package com.yzong.dsf14.RMIFramework.server;
 
+/**
+ * This class holds the Remote Object Reference, which contains the hostname and port number for the
+ * RMI Service Host. It also contains Object Key and Remote Interface Name.
+ * 
+ * @author Jimmy Zong <yzong@cmu.edu>
+ *
+ */
 public class RemoteObjectRef {
 
   private String HostName;
@@ -68,17 +75,18 @@ public class RemoteObjectRef {
   }
 
   /**
-   * Creates a stub from a Remote Object Reference. Intended to be used by the client.
+   * Generates a RMI Stub Object from a Remote Object Reference. Intended to be used by the client.
    * 
-   * @return Stub object corresponding to the Remote Object Reference.
+   * @return RMI Stub Object corresponding to the Remote Object Reference.
    */
   public Object localize() {
-    Class<? extends RMIRemoteStub> c;
+    Class<?> rmiStub;
     try {
-      c = (Class<? extends RMIRemoteStub>) Class.forName(RemoteInterfaceName + "_stub");
-      Object obj = c.newInstance();
+      rmiStub = (Class<?>) Class.forName(RemoteInterfaceName + "_stub");
+      Object obj = rmiStub.newInstance();
       return obj;
     } catch (Exception e) {
+      /* If any error occurs, return null. */
       return null;
     }
   }

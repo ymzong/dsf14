@@ -1,18 +1,42 @@
 package com.yzong.dsf14.RMIFramework.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+/**
+ * This class contains the entry point for an RMI Servant. It maintains a Hashtable from Remote
+ * Object References to the actual Remote Objects, and the client applications can access them by
+ * calling functions locally via the stub created by <tt>localise</tt>.
+ * 
+ * @author Jimmy Zong <yzong@cmu.edu>
+ *
+ */
 public class RMIService {
 
+  private static String ServiceName;
   private static String ClassName;
   private static String RegHostName;
   private static int RegPort;
-  private static String ServiceName;
+  private static String LocalHostName;
   private static int LocalPort;
 
+  /**
+   * Entry point for RMI Servant.
+   * 
+   * @param args Command-line arguments to instantiate the RMI Servant.
+   */
   public static void main(String args[]) {
+    /* Parse command-line arguments. */
     if (args.length != 5 || !NumberUtils.isNumber(args[2]) || !NumberUtils.isNumber(args[4])) {
       System.err
           .println("Usage:\tjava -jar RMIService.jar ClassName RegistryHostname RegistryPort ServiceName LocalPort");
@@ -23,24 +47,53 @@ public class RMIService {
     RegPort = Integer.parseInt(args[2]);
     ServiceName = args[3];
     LocalPort = Integer.parseInt(args[4]);
-    Class mainClass;
-    Class mainSkeleton;
+    /* Obtains the Remote Implementation Class. */
+    Class<?> remoteImpl;
     try {
-      mainClass = Class.forName(ClassName);
-      mainSkeleton = Class.forName(ClassName + "_skel");
+      remoteImpl = Class.forName(ClassName);
     } catch (ClassNotFoundException e) {
-      System.err.printf("ERROR -- Main class \"%s\" cannot be loaded!\n", ClassName);
+      System.err.printf("ERROR -- Remote implementation class \"%s\" cannot be loaded!\n",
+          ClassName);
       return;
     }
-    RoREntryTable tbl = new RoREntryTable();
+    /* Obtains Local Hostname. */
     try {
-      ServerSocket srvSocket = new ServerSocket(LocalPort);
+      LocalHostName = InetAddress.getLocalHost().getHostName();
+    } catch (UnknownHostException e) {
+      System.err.println("ERROR -- Cannot get local host name!");
+      return;
+    }
+    /* Initializes RoR table with the Remote Object. */
+    RoREntryTable tbl = new RoREntryTable();
+    long objKey = tbl.addObj(LocalHostName, LocalPort, remoteImpl);
+    /* Informs RMI Registry that the Service is ready. */
+    RMIRegistryClient sr = LocateRMIRegistry.getRegistry(RegHostName, RegPort);
+    if (sr == null) {
+      System.err.printf("ERROR -- Cannot establish connection with RMI Registry at %s:%d!\n",
+          RegHostName, RegPort);
+      return;
+    }
+    sr.bind(ServiceName, LocalHostName, LocalPort, objKey, ClassName);
+    /* Main loop: Accepts requests from client applications. */
+    ServerSocket srvSocket = null;
+    try {
+      srvSocket = new ServerSocket(LocalPort);
+      System.out.printf("INFO -- RMI Servant started at port %d.\n", LocalPort);
       while (true) {
-        // Function invocations.
+        Socket clientSocket = srvSocket.accept();
+        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+        /* TODO: Respond to client requests: method invocation on RoR */
       }
     } catch (Exception e) {
       System.err.println("ERROR -- Network I/O error occured!\n");
       return;
+    } finally {
+      try {
+        srvSocket.close();
+      } catch (IOException e) {
+      }
+      System.out.println("INFO -- Goodbye!");
     }
   }
 

@@ -18,29 +18,36 @@ import com.yzong.dsf14.RMIFramework.server.LocateRMIRegistry;
 import com.yzong.dsf14.RMIFramework.server.RMIRegistryClient;
 import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
 
+/**
+ * This class contains a <tt>main</tt> method that acts as a client of the <tt>ZipCodeServer</tt>.
+ * It instantiate a local stub of <tt>ZipCodeServer</tt> and calls its methods via the RMI
+ * framework, as if the object were local.
+ * 
+ * @author Jimmy Zong <yzong@cmu.edu>
+ *
+ */
 public class ZipCodeClient {
 
-  // the main takes three arguments:
-  // (0) a host.
-  // (1) a port.
-  // (2) a service name.
-  // (3) a file name as above.
+  /**
+   * Main test routine for <tt>ZipCodeServer</tt>.
+   * 
+   * @param args [Registry Hostname, Registry Port Number, Service Name, Data File Name]
+   * @throws IOException
+   */
   public static void main(String[] args) throws IOException {
     String host = args[0];
     int port = Integer.parseInt(args[1]);
     String serviceName = args[2];
     BufferedReader in = new BufferedReader(new FileReader(args[3]));
 
-    // locate the registry and get ror.
+    /* Locates the RMI Registry and gets the Remote Object Reference with the given Service Name. */
     RMIRegistryClient sr = LocateRMIRegistry.getRegistry(host, port);
     RemoteObjectRef ror = sr.lookup(serviceName);
 
-    // get (create) the stub out of ror.
+    /* Obtains the RMI Stub from Remote Object Reference. */
     ZipCodeServer zcs = (ZipCodeServer) ror.localize();
 
-    // reads the data and make a "local" zip code list.
-    // later this is sent to the server.
-    // again no error check!
+    /* Construct a local zip code list from the input data file. */
     ZipCodeList l = null;
     boolean flag = true;
     while (flag) {
@@ -52,10 +59,8 @@ public class ZipCodeClient {
         l = new ZipCodeList(city.trim(), code.trim(), l);
     }
     in.close();
-    // the final value of l should be the initial head of
-    // the list.
 
-    // we print out the local zipcodelist.
+    /* Prints out the local ZipCodeList. */
     System.out.println("This is the original list.");
     ZipCodeList temp = l;
     while (temp != null) {
@@ -63,32 +68,29 @@ public class ZipCodeClient {
       temp = temp.next;
     }
 
-    // test the initialise.
+    /* Tests `initialize` method. */
     zcs.initialise(l);
     System.out.println("\n Server initalised.");
 
-    // test the find.
-    System.out.println("\n This is the remote list given by find.");
+    /* Tests `find` method. */
+    System.out.println("\n This is the remote list given by `find`.");
     temp = l;
     while (temp != null) {
-      // here is a test.
       String res = zcs.find(temp.city);
       System.out.println("city: " + temp.city + ", " + "code: " + res);
       temp = temp.next;
     }
 
-    // test the findall.
-    System.out.println("\n This is the remote list given by findall.");
-    // here is a test.
+    /* Tests `findAll` method. */
+    System.out.println("\n This is the remote list given by `findall`.");
     temp = zcs.findAll();
     while (temp != null) {
       System.out.println("city: " + temp.city + ", " + "code: " + temp.ZipCode);
       temp = temp.next;
     }
 
-    // test the printall.
+    /* Tests `printAll` method. */
     System.out.println("\n We test the remote site printing.");
-    // here is a test.
     zcs.printAll();
   }
 }

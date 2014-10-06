@@ -1,5 +1,13 @@
 package com.yzong.dsf14.RMIFramework.server;
 
+/**
+ * 
+ * The class only contains one method, which returns the RMI Registry Client for a given endpoint if
+ * valid.
+ * 
+ * @author Jimmy Zong
+ *
+ */
 public class LocateRMIRegistry {
 
   /**
