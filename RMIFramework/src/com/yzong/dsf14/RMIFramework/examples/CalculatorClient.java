@@ -1,6 +1,7 @@
 package com.yzong.dsf14.RMIFramework.examples;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -27,19 +28,52 @@ public class CalculatorClient {
    * @throws RMIInvocationException
    */
   public static void main(String[] args) throws IOException, RMIInvocationException {
-    /* Parses command-line arguments */
-    String host = args[0];
-    int port = Integer.parseInt(args[1]);
-    String serviceName = args[2];
+    /* Loads user configurations */
+    Console console = System.console();
+    String host = console.readLine("Registry Hostname: ");
+    int port = Integer.parseInt(console.readLine("Registry Port Number: "));
+    String serviceName = console.readLine("Registry Service Name for CalculatorServer: ");
 
     /* Locates the RMI Registry and gets the Remote Object Reference with the given Service Name. */
     RMIRegistryClient sr = LocateRMIRegistry.getRegistry(host, port);
-    RemoteObjectRef ror = sr.lookup(serviceName);
+    RemoteObjectRef calcRoR = sr.lookup(serviceName);
 
     /* Obtains the RMI Stub from Remote Object Reference. */
-    CalculatorServer calcServ = (CalculatorServer) ror.localize();
-    
-    /* TODO: Carry out the test routines. */
+    CalculatorServer calcServ = (CalculatorServer) calcRoR.localize();
+
+    /* Carries out the test routines for Calculator Object. */
+    String calcName = "CalcFooBar";
+    System.out.printf("Setting the name of Calculator Object as: %s\n", calcName);
+    calcServ.initialize(calcName);
+    System.out.printf("The remote Calculator Object now has name: %s\n", calcServ.identify());
+    System.out.printf("The remote Calculator Object says: 15 + 440 = %d.\n", calcServ.add(15, 440));
+
+    /* Obtains a new ZipCode RoR. */
+    serviceName = console.readLine("Registry Service Name for ZipCodeServer: ");
+    String dataFile = console.readLine("Data File Path: ");
+    RemoteObjectRef zipCodeRoR = sr.lookup(serviceName);
+    ZipCodeServer zipCodeSrv = (ZipCodeServer) zipCodeRoR.localize();
+
+    /* Construct a local zip code list from the input data file. */
+    System.out.println("Initializing the ZipCodeSever...");
+    BufferedReader in = new BufferedReader(new FileReader(dataFile));
+    ZipCodeList l = null;
+    boolean flag = true;
+    while (flag) {
+      String city = in.readLine();
+      String code = in.readLine();
+      if (city == null)
+        flag = false;
+      else
+        l = new ZipCodeList(city.trim(), code.trim(), l);
+    }
+    in.close();
+    zipCodeSrv.initialise(l);
+
+    /* Tests the SecretMethod of CalculatorServer. */
+    System.out.printf("There are %d entries in ZipCodeServ.", calcServ.secretMethod(zipCodeSrv, 0));
+    System.out.printf("That plus 100 would be %d. (Calculated on server!)",
+        calcServ.secretMethod(zipCodeSrv, 100));
     return;
   }
 

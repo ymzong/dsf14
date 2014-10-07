@@ -20,16 +20,17 @@ public class ZipCodeClient {
   /**
    * Main test routine for <tt>ZipCodeServer</tt>.
    * 
-   * @param args [Registry Hostname, Registry Port Number, Service Name, Data File Name]
+   * @param args None necessary
    * @throws IOException
-   * @throws RMIInvocationException 
+   * @throws RMIInvocationException
    */
   public static void main(String[] args) throws IOException, RMIInvocationException {
-    /* Parses command-line arguments */
-    String host = args[0];
-    int port = Integer.parseInt(args[1]);
-    String serviceName = args[2];
-    BufferedReader in = new BufferedReader(new FileReader(args[3]));
+    /* Loads user configurations. */
+    Console console = System.console();
+    String host = console.readLine("Registry Hostname: ");
+    int port = Integer.parseInt(console.readLine("Registry Port Number: "));
+    String serviceName = console.readLine("Registry Service Name: ");
+    String fileName = console.readLine("Data File Path: ");
 
     /* Locates the RMI Registry and gets the Remote Object Reference with the given Service Name. */
     RMIRegistryClient sr = LocateRMIRegistry.getRegistry(host, port);
@@ -40,6 +41,7 @@ public class ZipCodeClient {
 
     /* Construct a local zip code list from the input data file. */
     ZipCodeList l = null;
+    BufferedReader in = new BufferedReader(new FileReader(fileName));
     boolean flag = true;
     while (flag) {
       String city = in.readLine();
@@ -83,7 +85,7 @@ public class ZipCodeClient {
     /* Tests `printAll` method. */
     System.out.println("\nWe test the remote site printing.");
     zcs.printAll();
-    
+
     return;
   }
 }
