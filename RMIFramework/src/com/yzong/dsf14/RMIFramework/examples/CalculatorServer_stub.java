@@ -76,7 +76,7 @@ public class CalculatorServer_stub implements CalculatorServer {
       out.writeObject(pkg);
       int result = (int) in.readObject();
       clientSocket.close();
-      return int;
+      return result;
     } catch (Exception e) {
       throw new RMIInvocationException();
     }

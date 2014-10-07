@@ -1,17 +1,5 @@
 package com.yzong.dsf14.RMIFramework.examples;
 
-// a client for ZipCodeServer.
-// it uses ZipCodeServer as an interface, and test
-// all methods.
-
-// It reads data from a file containing the service name and city-zip
-// pairs in the following way:
-// city1
-// zip1
-// ...
-// ...
-// end.
-
 import java.io.*;
 
 import com.yzong.dsf14.RMIFramework.infra.LocateRMIRegistry;
@@ -21,7 +9,7 @@ import com.yzong.dsf14.RMIFramework.infra.RemoteObjectRef;
 
 /**
  * This class contains a <tt>main</tt> method that acts as a client of the <tt>ZipCodeServer</tt>.
- * It instantiate a local stub of <tt>ZipCodeServer</tt> and calls its methods via the RMI
+ * It instantiates a local stub of <tt>ZipCodeServer</tt> and calls its methods via the RMI
  * framework, as if the object were local.
  * 
  * @author Jimmy Zong <yzong@cmu.edu>
@@ -95,5 +83,7 @@ public class ZipCodeClient {
     /* Tests `printAll` method. */
     System.out.println("\nWe test the remote site printing.");
     zcs.printAll();
+    
+    return;
   }
 }

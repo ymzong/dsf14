@@ -20,8 +20,9 @@ public class CalculatorServerImpl implements CalculatorServer {
   }
 
 
-  public synchronized int secretMethod(ZipCodeServer srv, int x) throws RMIInvocationException {
-    ZipCodeList list = srv.findAll();
+  public synchronized int secretMethod(Object srv, int x) throws RMIInvocationException {
+    ZipCodeServer stub = (ZipCodeServer) srv;
+    ZipCodeList list = stub.findAll();
     int count = x;
     while (list != null) {
       count++;
@@ -31,4 +32,5 @@ public class CalculatorServerImpl implements CalculatorServer {
   }
 
   public synchronized void setSelfRoR(RemoteObjectRef selfRoR) {}
+
 }
