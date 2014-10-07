@@ -1,3 +1,3 @@
-com.yzong.dsf14.RMIFramework.client
 com.yzong.dsf14.RMIFramework.examples
-com.yzong.dsf14.RMIFramework.server
+com.yzong.dsf14.RMIFramework.infra
+com.yzong.dsf14.RMIFramework.util
