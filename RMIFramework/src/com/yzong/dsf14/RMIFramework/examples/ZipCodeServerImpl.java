@@ -1,6 +1,6 @@
 package com.yzong.dsf14.RMIFramework.examples;
 
-import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
+import com.yzong.dsf14.RMIFramework.infra.RemoteObjectRef;
 
 /**
  * This class contains the actual implementation of <tt>ZipCodeServer</tt>, and the user essentially

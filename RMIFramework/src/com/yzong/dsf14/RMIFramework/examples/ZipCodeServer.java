@@ -1,7 +1,7 @@
 package com.yzong.dsf14.RMIFramework.examples;
 
-import com.yzong.dsf14.RMIFramework.server.RMIInvocationException;
-import com.yzong.dsf14.RMIFramework.server.RMIRemoteStub;
+import com.yzong.dsf14.RMIFramework.infra.RMIInvocationException;
+import com.yzong.dsf14.RMIFramework.infra.RMIRemoteStub;
 
 /**
  * <tt>ZipCodeServer</tt> is the interface of the actual implementation of the corresponding RMI

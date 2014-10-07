@@ -4,9 +4,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import com.yzong.dsf14.RMIFramework.server.RMIInvocationException;
-import com.yzong.dsf14.RMIFramework.server.RMIInvocationPkg;
-import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
+import com.yzong.dsf14.RMIFramework.infra.RMIInvocationException;
+import com.yzong.dsf14.RMIFramework.infra.RMIInvocationPkg;
+import com.yzong.dsf14.RMIFramework.infra.RemoteObjectRef;
 
 /**
  * A manually created RMI Stub for <tt>ZipCodeServer</tt> interface.

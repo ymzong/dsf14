@@ -14,10 +14,10 @@ package com.yzong.dsf14.RMIFramework.examples;
 
 import java.io.*;
 
-import com.yzong.dsf14.RMIFramework.server.LocateRMIRegistry;
-import com.yzong.dsf14.RMIFramework.server.RMIInvocationException;
-import com.yzong.dsf14.RMIFramework.server.RMIRegistryClient;
-import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
+import com.yzong.dsf14.RMIFramework.infra.LocateRMIRegistry;
+import com.yzong.dsf14.RMIFramework.infra.RMIInvocationException;
+import com.yzong.dsf14.RMIFramework.infra.RMIRegistryClient;
+import com.yzong.dsf14.RMIFramework.infra.RemoteObjectRef;
 
 /**
  * This class contains a <tt>main</tt> method that acts as a client of the <tt>ZipCodeServer</tt>.

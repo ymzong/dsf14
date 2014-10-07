@@ -1,4 +1,4 @@
-package com.yzong.dsf14.RMIFramework.server;
+package com.yzong.dsf14.RMIFramework.infra;
 
 import java.io.Serializable;
 

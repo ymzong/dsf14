@@ -1,4 +1,4 @@
-package com.yzong.dsf14.RMIFramework.server;
+package com.yzong.dsf14.RMIFramework.infra;
 
 /**
  * This interface extends the <tt>RMI Remote Object</tt> interface by forcing all stubs to have a

@@ -1,4 +1,4 @@
-package com.yzong.dsf14.RMIFramework.server;
+package com.yzong.dsf14.RMIFramework.infra;
 
 import java.io.Console;
 import org.apache.commons.lang3.math.NumberUtils;

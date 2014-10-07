@@ -1,9 +1,9 @@
-package com.yzong.dsf14.RMIFramework.client;
+package com.yzong.dsf14.RMIFramework.util;
 
 import java.util.List;
 
-import com.yzong.dsf14.RMIFramework.server.RMIRegistryClient;
-import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
+import com.yzong.dsf14.RMIFramework.infra.RMIRegistryClient;
+import com.yzong.dsf14.RMIFramework.infra.RemoteObjectRef;
 
 /**
  * This class contains a <tt>main</tt> method that tests all functionalities of RMI Registry. Be

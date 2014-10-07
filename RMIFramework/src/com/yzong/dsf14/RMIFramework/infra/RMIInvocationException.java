@@ -1,4 +1,4 @@
-package com.yzong.dsf14.RMIFramework.server;
+package com.yzong.dsf14.RMIFramework.infra;
 
 /**
  * This Exception class is the wrapper for all exceptions during RMI Invocations.
