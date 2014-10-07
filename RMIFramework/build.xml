@@ -28,11 +28,6 @@
 	</target>
 	<target name="clean">
 		<delete dir="bin" />
-		<delete>
-			<fileset dir=".">
-				<include name="*.jar" />
-			</fileset>
-		</delete>
 	</target>
 	<target depends="clean" name="cleanall" />
 	<target depends="build-subprojects,build-project" name="build" />
@@ -45,13 +40,13 @@
 		</javac>
 	</target>
 	<target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects" />
-	<target name="RMIRegistry">
-		<java classname="com.yzong.dsf14.RMIFramework.server.RMIRegistry" failonerror="true" fork="yes">
+	<target name="TestRMIRegistry">
+		<java classname="com.yzong.dsf14.RMIFramework.client.TestRMIRegistry" failonerror="true" fork="yes">
 			<classpath refid="RMIFramework.classpath" />
 		</java>
 	</target>
-	<target name="TestRMIRegistry">
-		<java classname="com.yzong.dsf14.RMIFramework.client.TestRMIRegistry" failonerror="true" fork="yes">
+	<target name="RMIRegistry">
+		<java classname="com.yzong.dsf14.RMIFramework.server.RMIRegistry" failonerror="true" fork="yes">
 			<classpath refid="RMIFramework.classpath" />
 		</java>
 	</target>

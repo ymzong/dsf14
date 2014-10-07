@@ -15,6 +15,7 @@ package com.yzong.dsf14.RMIFramework.examples;
 import java.io.*;
 
 import com.yzong.dsf14.RMIFramework.server.LocateRMIRegistry;
+import com.yzong.dsf14.RMIFramework.server.RMIInvocationException;
 import com.yzong.dsf14.RMIFramework.server.RMIRegistryClient;
 import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
 
@@ -33,8 +34,10 @@ public class ZipCodeClient {
    * 
    * @param args [Registry Hostname, Registry Port Number, Service Name, Data File Name]
    * @throws IOException
+   * @throws RMIInvocationException 
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, RMIInvocationException {
+    /* Parses command-line arguments */
     String host = args[0];
     int port = Integer.parseInt(args[1]);
     String serviceName = args[2];
@@ -61,7 +64,7 @@ public class ZipCodeClient {
     in.close();
 
     /* Prints out the local ZipCodeList. */
-    System.out.println("This is the original list.");
+    System.out.println("This is the original list:");
     ZipCodeList temp = l;
     while (temp != null) {
       System.out.println("city: " + temp.city + ", " + "code: " + temp.ZipCode);
@@ -70,10 +73,10 @@ public class ZipCodeClient {
 
     /* Tests `initialize` method. */
     zcs.initialise(l);
-    System.out.println("\n Server initalised.");
+    System.out.println("\nServer initalised.");
 
     /* Tests `find` method. */
-    System.out.println("\n This is the remote list given by `find`.");
+    System.out.println("\nThis is the remote list given by `find`.");
     temp = l;
     while (temp != null) {
       String res = zcs.find(temp.city);
@@ -82,7 +85,7 @@ public class ZipCodeClient {
     }
 
     /* Tests `findAll` method. */
-    System.out.println("\n This is the remote list given by `findall`.");
+    System.out.println("\nThis is the remote list given by `findall`.");
     temp = zcs.findAll();
     while (temp != null) {
       System.out.println("city: " + temp.city + ", " + "code: " + temp.ZipCode);
@@ -90,7 +93,7 @@ public class ZipCodeClient {
     }
 
     /* Tests `printAll` method. */
-    System.out.println("\n We test the remote site printing.");
+    System.out.println("\nWe test the remote site printing.");
     zcs.printAll();
   }
 }

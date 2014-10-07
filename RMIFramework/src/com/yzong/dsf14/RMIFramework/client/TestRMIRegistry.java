@@ -14,9 +14,6 @@ import com.yzong.dsf14.RMIFramework.server.RemoteObjectRef;
  */
 public class TestRMIRegistry {
 
-  private static final String RegistryHost = "localhost";
-  private static final int RegistryPort = 9019;
-
   /**
    * Main test routine for RMI Registry.
    * 
@@ -24,7 +21,7 @@ public class TestRMIRegistry {
    */
   public static void main(String[] args) {
     System.out.println("Connecting to RMI Registery Server...");
-    RMIRegistryClient rmic = new RMIRegistryClient(RegistryHost, RegistryPort);
+    RMIRegistryClient rmic = new RMIRegistryClient(args[0], Integer.parseInt(args[1]));
     System.out.println("Testing PING...");
     assert (rmic.ping());
 

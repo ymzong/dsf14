@@ -81,11 +81,11 @@ public class RMIServer {
     try {
       srv = new ServerSocket(0);
       LocalPort = srv.getLocalPort();
+      System.out.printf("INFO -- RMI Server started at %s:%d. Master RMI Registry at %s:%d.\n",
+          LocalHostName, LocalPort, RegHostName, RegPort);
       RMIServerCLI cli = new RMIServerCLI(RegHostName, RegPort, LocalHostName, LocalPort, tbl);
       Thread cliThread = new Thread(cli);
       cliThread.start();
-      System.out.printf("INFO -- RMI Server started at %s:%d. Master RMI Registry at %s:%d.\n",
-          LocalHostName, LocalPort, RegHostName, RegPort);
       /* Mainloop that handles client application method invocations. */
       while (true) {
         Socket srvSocket = srv.accept();

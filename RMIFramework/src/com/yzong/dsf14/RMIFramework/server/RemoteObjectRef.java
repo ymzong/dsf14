@@ -83,7 +83,8 @@ public class RemoteObjectRef {
     Class<?> rmiStub;
     try {
       rmiStub = (Class<?>) Class.forName(RemoteInterfaceName + "_stub");
-      Object obj = rmiStub.newInstance();
+      RMIRemoteStub obj = (RMIRemoteStub) rmiStub.newInstance();
+      obj.setSelfRoR(this);
       return obj;
     } catch (Exception e) {
       /* If any error occurs, return null. */
