@@ -47,7 +47,6 @@ public class ZipCodeServerImpl implements ZipCodeServer {
   }
 
   @Override
-  public void setSelfRoR(RemoteObjectRef remoteObjectRef) {
-  }
+  public void setSelfRoR(RemoteObjectRef remoteObjectRef) {}
 
 }
