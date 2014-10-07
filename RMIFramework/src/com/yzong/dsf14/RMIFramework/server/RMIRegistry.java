@@ -19,6 +19,11 @@ import org.apache.commons.lang3.math.NumberUtils;
  */
 public class RMIRegistry {
 
+  /**
+   * Use Apache Commons CLI Library to display help message to the user.
+   * 
+   * @param ops Options list
+   */
   static void displayHelp(Options ops) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("java -jar RMIRegistry.jar -p port_num", ops);
@@ -33,13 +38,13 @@ public class RMIRegistry {
    */
   public static void main(String[] args) throws UnknownHostException {
     Options cliOptions = new Options();
-    cliOptions.addOption("p", true, "port for RMI Registry");
+    cliOptions.addOption("p", true, "Port for RMI Registry");
     CommandLineParser cliParser = new GnuParser();
     CommandLine cmd = null;
     try {
       cmd = cliParser.parse(cliOptions, args);
     } catch (Exception e) {
-      System.err.println("Parsing failed.  Reason: " + e.getMessage());
+      System.err.println("Parsing failed. Reason: " + e.getMessage());
       displayHelp(cliOptions);
     }
     String localhost = InetAddress.getLocalHost().getHostName();

@@ -36,7 +36,7 @@ public class RMIRegistryClient {
    * 
    * @return <tt>true</tt> if and only if the Registry server is up.
    */
-  public boolean ping() {
+  public synchronized boolean ping() {
     try {
       Socket clientSocket = new Socket(HostName, Port);
       BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -55,7 +55,7 @@ public class RMIRegistryClient {
    * 
    * @return List of registered Service Names on Registry.
    */
-  public List<String> list() {
+  public synchronized List<String> list() {
     List<String> srvNames = new ArrayList<String>();
     try {
       Socket clientSocket = new Socket(HostName, Port);
@@ -89,7 +89,7 @@ public class RMIRegistryClient {
    * @param serviceName Service Name to be unbound
    * @return Empty string if succeeded, otherwise the error message.
    */
-  public String unbind(String serviceName) {
+  public synchronized String unbind(String serviceName) {
     try {
       Socket clientSocket = new Socket(HostName, Port);
       BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -120,7 +120,7 @@ public class RMIRegistryClient {
    * @param remoteInterfaceName Remote Interfact Name of the RMI Object
    * @return Empty string if succeeded, otherwise the error message.
    */
-  public String bind(String serviceName, String hostName, int port, long objectKey,
+  public synchronized String bind(String serviceName, String hostName, int port, long objectKey,
       String remoteInterfaceName) {
     try {
       Socket clientSocket = new Socket(HostName, Port);
@@ -157,7 +157,7 @@ public class RMIRegistryClient {
    * @param remoteInterfaceName Remote Interfact Name of the RMI Object
    * @return Empty string if succeeded, otherwise the error message.
    */
-  public String rebind(String serviceName, String hostName, int port, long objectKey,
+  public synchronized String rebind(String serviceName, String hostName, int port, long objectKey,
       String remoteInterfaceName) {
     try {
       Socket clientSocket = new Socket(HostName, Port);
@@ -189,7 +189,7 @@ public class RMIRegistryClient {
    * @return The corresponding Remote Object Reference if the Service Name exists; otherwise
    *         <tt>null</tt>.
    */
-  public RemoteObjectRef lookup(String serviceName) {
+  public synchronized RemoteObjectRef lookup(String serviceName) {
     try {
       Socket clientSocket = new Socket(HostName, Port);
       BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
