@@ -86,15 +86,16 @@ public class RMIServerCLI implements Runnable {
               String response =
                   RMIRegClient.bind(srvName, LocalHostName, LocalPort, objKey, remoteIntfClassName);
               if (response.equals("")) {
-                System.out.printf("Successfully registered service %s!\n", srvName);
+                System.out.printf("Successfully registered service %s!\n\n", srvName);
               }
               /* If anything fails, revert the change to local RoR Table. */
               else {
-                RoRTable
-                    .removeObj(new RemoteObjectRef(LocalHostName, LocalPort, objKey, className));
-                System.out.printf(
-                    "Error happened while registering service %s:%s.\nAll changes are reverted.\n",
-                    srvName, response);
+                RoRTable.removeObj(new RemoteObjectRef(LocalHostName, LocalPort, objKey,
+                    remoteIntfClassName));
+                System.out
+                    .printf(
+                        "Error happened while registering service %s: %s.\nAll changes are reverted.\n\n",
+                        srvName, response);
               }
             } else {
               System.out
@@ -118,9 +119,12 @@ public class RMIServerCLI implements Runnable {
             Class<?> remoteImpl;
             String remoteIntfClassName = null;
             remoteImpl = Class.forName(className);
-            System.err.printf("Error: Remote implementation class \"%s\" cannot be loaded!\n",
-                className);
-            /* Populates RoR Table with the Remote Object. */
+            /* Removes the old Remote Object from RoR Table. */
+            RemoteObjectRef oldRoR = RMIRegClient.lookup(srvName);
+            if (oldRoR != null) {
+              RoRTable.removeObj(oldRoR);
+            }
+            /* Populates RoR Table with the new Remote Object. */
             long objKey = RoRTable.addObj(LocalHostName, LocalPort, remoteImpl.newInstance());
             /* Informs RMI Registry that the Service is ready. */
             if (remoteImpl.getInterfaces().length == 1) {
@@ -129,15 +133,17 @@ public class RMIServerCLI implements Runnable {
                   RMIRegClient.rebind(srvName, LocalHostName, LocalPort, objKey,
                       remoteIntfClassName);
               if (response.equals("")) {
-                System.out.printf("Successfully registered service %s!\n", srvName);
+
+                System.out.printf("Successfully registered service %s!\n\n", srvName);
               }
               /* If anything fails, revert the change to local RoR Table. */
               else {
-                RoRTable
-                    .removeObj(new RemoteObjectRef(LocalHostName, LocalPort, objKey, className));
-                System.out.printf(
-                    "Error happened while registering service %s:%s.\nAll changes are reverted.\n",
-                    srvName, response);
+                RoRTable.removeObj(new RemoteObjectRef(LocalHostName, LocalPort, objKey,
+                    remoteIntfClassName));
+                System.out
+                    .printf(
+                        "Error happened while registering service %s: %s.\nAll changes are reverted.\n\n",
+                        srvName, response);
               }
             } else {
               System.out
@@ -172,10 +178,10 @@ public class RMIServerCLI implements Runnable {
               }
             }
             if (error) {
-              System.out.printf("Failed to unbind object with Object Key %s in RMI Registry!\n",
+              System.out.printf("Failed to unbind object with Object Key %s in RMI Registry!\n\n",
                   command[1]);
             } else {
-              System.out.printf("Successfully unbound object with Object Key %s.\n", command[1]);
+              System.out.printf("Successfully unbound object with Object Key %s.\n\n", command[1]);
             }
           }
         }
@@ -190,11 +196,19 @@ public class RMIServerCLI implements Runnable {
     }
     System.out.println("Cleaning up RMI Registry...");
     try {
-      /* Cleans up RMI Registry */
+      for (String srvName : RMIRegClient.list()) {
+        for (int i = 0; i < RoRTable.list().length; i++) {
+          if (RoRTable.list()[i].equals(RMIRegClient.lookup(srvName))) {
+            RMIRegClient.unbind(srvName);
+            System.out.printf("Unbound service %s from RMI Registry.\n", srvName);
+            break;
+          }
+        }
+      }
     } catch (Exception e) {
-
+      /* Ignore any exceptions occured during clean-up phase. */
     } finally {
-      System.out.println("Done! Goodbye.");
+      System.out.println("Done. Goodbye!");
       System.exit(0);
     }
   }

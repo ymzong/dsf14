@@ -86,25 +86,30 @@ public class RMIServer {
       RMIServerCLI cli = new RMIServerCLI(RegHostName, RegPort, LocalHostName, LocalPort, tbl);
       Thread cliThread = new Thread(cli);
       cliThread.start();
-      /* Mainloop that handles client application method invocations. */
+      /* Mainloop dispatcher that handles client application method invocations. */
       while (true) {
-        Socket srvSocket = srv.accept();
-        ObjectOutputStream out = new ObjectOutputStream(srvSocket.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(srvSocket.getInputStream());
-        RMIInvocationPkg invoc = (RMIInvocationPkg) in.readObject(); // Client invocation package
-        String inftName = invoc.getRoR().getRemoteInterfaceName(); // Remote Interface name
-        String methodName = invoc.getMethodName(); // Method name
-        Class<?> intfClass = Class.forName(inftName); // Object interface name
-        Class<?>[] paramTypes = new Class<?>[invoc.getArgs().length]; // Construct params class list
-        for (int i = 0; i < paramTypes.length; i++) {
-          paramTypes[i] = invoc.getArgs()[i].getClass();
+        try {
+          Socket srvSocket = srv.accept();
+          ObjectOutputStream out = new ObjectOutputStream(srvSocket.getOutputStream());
+          ObjectInputStream in = new ObjectInputStream(srvSocket.getInputStream());
+          RMIInvocationPkg invoc = (RMIInvocationPkg) in.readObject(); // Client invocation package
+          String inftName = invoc.getRoR().getRemoteInterfaceName(); // Remote Interface name
+          String methodName = invoc.getMethodName(); // Method name
+          Class<?> intfClass = Class.forName(inftName); // Object interface name
+          Class<?>[] paramTypes = new Class<?>[invoc.getArgs().length]; // Construct params class
+                                                                        // list
+          for (int i = 0; i < paramTypes.length; i++) {
+            paramTypes[i] = invoc.getArgs()[i].getClass();
+          }
+          Method invokedMethod = // Obtain method header from interface
+              intfClass.cast(tbl.findObjByRoR(invoc.getRoR())).getClass()
+                  .getMethod(methodName, paramTypes);
+          out.writeObject(invokedMethod.invoke(intfClass.cast(tbl.findObjByRoR(invoc.getRoR())),
+              invoc.getArgs())); // Call method on actual object and return result.
+          srvSocket.close();
+        } catch (Exception e) {
+          System.out.printf("ERROR -- %s\n", e.getMessage());
         }
-        Method invokedMethod = // Obtain method header from interface
-            intfClass.cast(tbl.findObjByRoR(invoc.getRoR())).getClass()
-                .getMethod(methodName, paramTypes);
-        out.writeObject(invokedMethod.invoke(intfClass.cast(tbl.findObjByRoR(invoc.getRoR())),
-            invoc.getArgs())); // Call method on actual object and return result.
-        srvSocket.close();
       }
     } catch (Exception e) {
       System.out.printf("ERROR -- %s\n", e.getMessage());

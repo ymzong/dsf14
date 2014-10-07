@@ -1,5 +1,7 @@
 package com.yzong.dsf14.RMIFramework.server;
 
+import java.io.Serializable;
+
 /**
  * This class holds the Remote Object Reference, which contains the hostname and port number for the
  * RMI Service Host. It also contains Object Key and Remote Interface Name.
@@ -7,8 +9,9 @@ package com.yzong.dsf14.RMIFramework.server;
  * @author Jimmy Zong <yzong@cmu.edu>
  *
  */
-public class RemoteObjectRef {
+public class RemoteObjectRef implements Serializable {
 
+  private static final long serialVersionUID = -5251266551341123093L;
   private String HostName;
   private int Port;
   private long ObjKey;
@@ -91,4 +94,5 @@ public class RemoteObjectRef {
       return null;
     }
   }
+
 }

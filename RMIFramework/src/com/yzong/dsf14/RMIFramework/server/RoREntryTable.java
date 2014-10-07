@@ -28,8 +28,8 @@ public class RoREntryTable {
    * @return Object counter of the latest added Remote Object.
    */
   public synchronized long addObj(String hostName, int port, Object remoteObject) {
-    String className = remoteObject.getClass().getName();
-    EntryTable.put(new RemoteObjectRef(hostName, port, ObjectCounter, className), remoteObject);
+    String intfName = remoteObject.getClass().getInterfaces()[0].getName();
+    EntryTable.put(new RemoteObjectRef(hostName, port, ObjectCounter, intfName), remoteObject);
     ObjectCounter++;
     return ObjectCounter - 1;
   }
