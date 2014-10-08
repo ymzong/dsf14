@@ -96,16 +96,21 @@ public class RMIServer {
           String inftName = invoc.getRoR().getRemoteInterfaceName(); // Remote Interface name
           String methodName = invoc.getMethodName(); // Method name
           Class<?> intfClass = Class.forName(inftName); // Object interface name
-          Class<?>[] paramTypes = new Class<?>[invoc.getArgs().length]; // Construct params class
-                                                                        // list
-          for (int i = 0; i < paramTypes.length; i++) {
-            paramTypes[i] = invoc.getArgs()[i].getClass();
+          Class<?>[] paramTypes = new Class<?>[invoc.getArgs().length]; // Params class list
+          /* Find the actual remote object from its RoR (Pass by Reference) */
+          Object[] argsList = invoc.getArgs();
+          for (int i = 0; i < argsList.length; i++) {
+            if (argsList[i] instanceof RemoteObjectRef) {
+              argsList[i] = tbl.findObjByRoR((RemoteObjectRef) argsList[i]);
+            }
+            paramTypes[i] = argsList[i].getClass();
           }
-          Method invokedMethod = // Obtain method header from interface
+          /* Invokes the Remote Method and return the result to the client application. */
+          Method invokedMethod =
               intfClass.cast(tbl.findObjByRoR(invoc.getRoR())).getClass()
                   .getMethod(methodName, paramTypes);
           out.writeObject(invokedMethod.invoke(intfClass.cast(tbl.findObjByRoR(invoc.getRoR())),
-              invoc.getArgs())); // Call method on actual object and return result.
+              invoc.getArgs()));
           srvSocket.close();
         } catch (Exception e) {
           System.out.printf("ERROR -- %s\n", e.getMessage());

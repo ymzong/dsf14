@@ -29,7 +29,7 @@ public class ZipCodeClient {
     Console console = System.console();
     String host = console.readLine("Registry Hostname: ");
     int port = Integer.parseInt(console.readLine("Registry Port Number: "));
-    String serviceName = console.readLine("Registry Service Name: ");
+    String serviceName = console.readLine("Registry Service Name for ZipCodeServer: ");
     String fileName = console.readLine("Data File Path: ");
 
     /* Locates the RMI Registry and gets the Remote Object Reference with the given Service Name. */
