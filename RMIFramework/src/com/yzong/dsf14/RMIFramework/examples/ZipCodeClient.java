@@ -83,9 +83,10 @@ public class ZipCodeClient {
     }
 
     /* Tests `printAll` method. */
-    System.out.println("\nWe test the remote site printing.");
+    System.out.println("\nTesting remote site printing -- check RMI Server's terminal.");
     zcs.printAll();
 
+    System.out.println("\nGoodbye!");
     return;
   }
 }

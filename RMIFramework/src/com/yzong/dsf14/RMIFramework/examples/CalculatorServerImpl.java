@@ -7,10 +7,12 @@ public class CalculatorServerImpl implements CalculatorServer {
 
   public String CalcName = "";
 
-  public synchronized void initialize(String name) throws RMIInvocationException {}
+  public synchronized void initialize(String name) throws RMIInvocationException {
+    this.CalcName = name;
+  }
 
 
-  public synchronized int add(int x, int y) throws RMIInvocationException {
+  public synchronized int add(Integer x, Integer y) throws RMIInvocationException {
     return x + y;
   }
 
@@ -19,10 +21,8 @@ public class CalculatorServerImpl implements CalculatorServer {
     return CalcName;
   }
 
-
-  public synchronized int secretMethod(Object srv, int x) throws RMIInvocationException {
-    ZipCodeServer stub = (ZipCodeServer) srv;
-    ZipCodeList list = stub.findAll();
+  public synchronized int secretMethod(ZipCodeServer srv, Integer x) throws RMIInvocationException {
+    ZipCodeList list = srv.findAll();
     int count = x;
     while (list != null) {
       count++;

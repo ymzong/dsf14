@@ -23,7 +23,7 @@ public class CalculatorClient {
   /**
    * Main test routine for <tt>CalculatorServer</tt>.
    * 
-   * @param args [Registry Hostname, Registry Port Number, Service Name]
+   * @param args None
    * @throws IOException
    * @throws RMIInvocationException
    */
@@ -46,7 +46,8 @@ public class CalculatorClient {
     System.out.printf("Setting the name of Calculator Object as: %s\n", calcName);
     calcServ.initialize(calcName);
     System.out.printf("The remote Calculator Object now has name: %s\n", calcServ.identify());
-    System.out.printf("The remote Calculator Object says: 15 + 440 = %d.\n", calcServ.add(15, 440));
+    System.out.printf("The remote Calculator Object says: 15 + 440 = %d.\n",
+        calcServ.add(new Integer(15), new Integer(440)));
 
     /* Obtains a new ZipCode RoR. */
     serviceName = console.readLine("Registry Service Name for ZipCodeServer: ");
@@ -71,9 +72,12 @@ public class CalculatorClient {
     zipCodeSrv.initialise(l);
 
     /* Tests the SecretMethod of CalculatorServer. */
-    System.out.printf("There are %d entries in ZipCodeServ.", calcServ.secretMethod(zipCodeSrv, 0));
-    System.out.printf("That plus 100 would be %d. (Calculated on server!)",
-        calcServ.secretMethod(zipCodeSrv, 100));
+    System.out.printf("There are %d entries in ZipCodeServ.\n",
+        calcServ.secretMethod(zipCodeSrv, new Integer(0)));
+    System.out.printf("That plus 100 would be %d. (Calculated on server!)\n",
+        calcServ.secretMethod(zipCodeSrv, new Integer(100)));
+    
+    System.out.println("Goodbye!");
     return;
   }
 

@@ -28,7 +28,7 @@ public interface CalculatorServer extends RMIRemoteStub {
    * @return Sum of two parameters
    * @throws RMIInvocationException
    */
-  public int add(int x, int y) throws RMIInvocationException;
+  public int add(Integer x, Integer y) throws RMIInvocationException;
 
   /**
    * Returns the name of the Calculator instance.
@@ -49,5 +49,5 @@ public interface CalculatorServer extends RMIRemoteStub {
    * @return Length of <tt>ZipCodeList</tt> plus the second parameter
    * @throws RMIInvocationException
    */
-  public int secretMethod(Object srv, int x) throws RMIInvocationException;
+  public int secretMethod(ZipCodeServer srv, Integer x) throws RMIInvocationException;
 }

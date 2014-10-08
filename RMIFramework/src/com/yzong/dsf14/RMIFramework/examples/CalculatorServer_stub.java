@@ -32,7 +32,7 @@ public class CalculatorServer_stub implements CalculatorServer {
   }
 
   @Override
-  public int add(int x, int y) throws RMIInvocationException {
+  public int add(Integer x, Integer y) throws RMIInvocationException {
     RMIInvocationPkg pkg = new RMIInvocationPkg("add", new Object[] {x, y}, selfRoR);
     try {
       Socket clientSocket = new Socket(selfRoR.getHostName(), selfRoR.getPort());
@@ -63,8 +63,7 @@ public class CalculatorServer_stub implements CalculatorServer {
     }
   }
 
-  @Override
-  public int secretMethod(Object srv, int x) throws RMIInvocationException {
+  public int secretMethod(ZipCodeServer srv, Integer x) throws RMIInvocationException {
     /* We are passing the ZipCodeServer as Reference! */
     RMIInvocationPkg pkg =
         new RMIInvocationPkg("secretMethod", new Object[] {((ZipCodeServer_stub) srv).selfRoR, x},

@@ -1,5 +1,6 @@
 package com.yzong.dsf14.RMIFramework.util;
 
+import java.io.Console;
 import java.util.List;
 
 import com.yzong.dsf14.RMIFramework.infra.RMIRegistryClient;
@@ -17,11 +18,14 @@ public class TestRMIRegistry {
   /**
    * Main test routine for RMI Registry.
    * 
-   * @param args
+   * @param args None
    */
   public static void main(String[] args) {
     System.out.println("Connecting to RMI Registery Server...");
-    RMIRegistryClient rmic = new RMIRegistryClient(args[0], Integer.parseInt(args[1]));
+    Console console = System.console();
+    String hostName = console.readLine("Registry Hostname: ");
+    String portNum = console.readLine("Registry Port Number: ");
+    RMIRegistryClient rmic = new RMIRegistryClient(hostName, Integer.parseInt(portNum));
     System.out.println("Testing PING...");
     assert (rmic.ping());
 

@@ -93,4 +93,13 @@
 			</manifest>
 		</jar>
 	</target>
+	<target name="JarCalculatorClient">
+		<jar destfile="RMICalculatorClient.jar" basedir="bin">
+			<zipgroupfileset dir="lib" includes="*" />
+			<manifest>
+				<attribute name="Main-Class" value="com.yzong.dsf14.RMIFramework.examples.CalculatorClient" />
+				<attribute name="Class-Path" value="." />
+			</manifest>
+		</jar>
+	</target>
 </project>

@@ -100,18 +100,24 @@ public class RMIServer {
           /* Find the actual remote object from its RoR (Pass by Reference) */
           Object[] argsList = invoc.getArgs();
           for (int i = 0; i < argsList.length; i++) {
+            paramTypes[i] = argsList[i].getClass(); // General case
             if (argsList[i] instanceof RemoteObjectRef) {
+              paramTypes[i] = Class.forName(((RemoteObjectRef) argsList[i]).getRemoteInterfaceName());
               argsList[i] = tbl.findObjByRoR((RemoteObjectRef) argsList[i]);
             }
-            paramTypes[i] = argsList[i].getClass();
           }
           /* Invokes the Remote Method and return the result to the client application. */
-          Method invokedMethod =
-              intfClass.cast(tbl.findObjByRoR(invoc.getRoR())).getClass()
-                  .getMethod(methodName, paramTypes);
-          out.writeObject(invokedMethod.invoke(intfClass.cast(tbl.findObjByRoR(invoc.getRoR())),
-              invoc.getArgs()));
-          srvSocket.close();
+          try {
+            Method invokedMethod =
+                intfClass.cast(tbl.findObjByRoR(invoc.getRoR())).getClass()
+                    .getMethod(methodName, paramTypes);
+            out.writeObject(invokedMethod.invoke(intfClass.cast(tbl.findObjByRoR(invoc.getRoR())),
+                argsList));
+            srvSocket.close();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+
         } catch (Exception e) {
           System.out.printf("ERROR -- %s\n", e.getMessage());
         }
