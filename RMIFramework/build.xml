@@ -107,4 +107,6 @@
 			</manifest>
 		</jar>
 	</target>
+	<target name="jars" depends="JarRMIRegistry, JarTestRMIRegistry, JarRMIServer, JarZipCodeClient, JarCalculatorClient">
+	</target>
 </project>
