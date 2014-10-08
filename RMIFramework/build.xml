@@ -28,13 +28,18 @@
 	</target>
 	<target name="clean">
 		<delete dir="bin" />
+		<delete file="RMICalculatorClient.jar" />
+		<delete file="RMIRegistry.jar" />
+		<delete file="RMIServer.jar" />
+		<delete file="RMITestRegistry.jar" />
+		<delete file="RMIZipCodeClient.jar" />
 	</target>
 	<target depends="clean" name="cleanall" />
 	<target depends="build-subprojects,build-project" name="build" />
 	<target name="build-subprojects" />
 	<target depends="init" name="build-project">
 		<echo message="${ant.project.name}: ${ant.file}" />
-		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" fork="yes" executable="/usr/bin/javac">
 			<src path="src" />
 			<classpath refid="RMIFramework.classpath" />
 		</javac>
