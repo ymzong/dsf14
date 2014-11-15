@@ -44,7 +44,7 @@ public class ConfigManager {
     /* Set master properties. */
     config.addProperty("Master.host", "ghc35.ghc.andrew.cmu.edu");
     config.addProperty("Master.fsport", 9192);
-    config.addProperty("Master.mrport", 9192);
+    config.addProperty("Master.mrport", 9193);
     /* Set worker properties. */
     config.addProperty("Workers.Worker(0).host", "unix3.andrew.cmu.edu");
     config.addProperty("Workers.Worker(1).host", "unix5.andrew.cmu.edu");

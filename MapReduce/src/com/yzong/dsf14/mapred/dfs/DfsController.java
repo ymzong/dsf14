@@ -1,6 +1,9 @@
 package com.yzong.dsf14.mapred.dfs;
 
 import java.io.File;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +27,7 @@ public class DfsController {
 
   public DfsController(DfsCluster cluster) {
     this.SessionID = RandomStringUtils.randomAlphanumeric(8);
-    System.out.printf("Initializing session %s...\n", SessionID);
+    System.out.printf("Initializing session `%s`...\n", SessionID);
     this.ClusterConfig = cluster; // Save cluster info
     this.FileList = new ArrayList<FileProp>(); // Empty list of files
     this.LookupTable = new HashMap<String, List<ShardInfo>>(); // Worker Node -> File Shards
@@ -69,15 +72,37 @@ public class DfsController {
   public boolean waitForDFS() {
     Set<String> unavailableWorker = ClusterConfig.WorkerConfig.keySet();
     while (unavailableWorker.size() != 0) {
-      System.out.printf("Waiting for worker nodes... %d remaining...\n", unavailableWorker.size());
-      // TODO: Contact work nodes.
+      System.out.printf("\nWaiting for worker nodes... (%d remaining)\n", unavailableWorker.size());
+      for (String w : unavailableWorker) {
+        Socket outSocket;
+        try {
+          outSocket =
+              new Socket(ClusterConfig.WorkerConfig.get(w).HostName,
+                  ClusterConfig.WorkerConfig.get(w).PortNum);
+          ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+          ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+          out.writeObject(new DfsCommunicationPkg("PING", null));
+          String response = ((DfsCommunicationPkg) in.readObject()).Command;
+          outSocket.close();
+          if (response.equals("PONG")) {
+            unavailableWorker.remove(w);
+          }
+        }
+        /* If connection error occurs, ignore and continue. */
+        catch (Exception e) {
+          System.out
+              .printf("Warning: Worker %s:%d not reachable! Will retry in 2 seconds...\n",
+                  ClusterConfig.WorkerConfig.get(w).HostName,
+                  ClusterConfig.WorkerConfig.get(w).PortNum);
+        }
+      }
       try {
-        Thread.sleep(1000); // Waits for 2 seconds before another round.
+        Thread.sleep(2000); // Waits for 2 seconds before another round.
       } catch (InterruptedException ex) {
         Thread.currentThread().interrupt();
       }
     }
-    System.out.println("Cluster initialized successfully.");
+    System.out.println("\nCluster initialized successfully.");
     return true;
   }
 }

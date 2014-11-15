@@ -29,6 +29,7 @@ public class DfsWorker {
       LocalPort = Integer.parseInt(args[0]);
     } catch (Exception e) {
       System.err.println("Please input a valid port number as the first argument!");
+      System.exit(1);
     }
     /* Load the cluster topology. */
     ConfigManager cm = new ConfigManager(CFG_PATH);
@@ -47,16 +48,17 @@ public class DfsWorker {
           ObjectOutputStream out = new ObjectOutputStream(workerSocket.getOutputStream());
           DfsCommunicationPkg inPkg = (DfsCommunicationPkg) in.readObject();
           /* Case One: Heartbeat request. */
-          if (inPkg.Command == "PING") {
+          if (inPkg.Command.equals("PING")) {
+            System.out.printf("INFO -- `PING` request received from client.");
             out.writeObject(new DfsCommunicationPkg("PONG", null));
           }
           /* Case Two: Master pushes shard request. */
-          else if (inPkg.Command == "ADD") {
-            
+          else if (inPkg.Command.equals("ADD")) {
+
           }
           /* Case Three: Client requests file shard. */
-          else if (inPkg.Command == "GET") {
-            
+          else if (inPkg.Command.equals("GET")) {
+
           }
           /* Case Four: Incoming package cannot be interpreted. */
           else {
