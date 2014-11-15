@@ -11,6 +11,7 @@
 # Library and Binary Files #
 lib/*
 bin/*
+MapReduce/lib/
 
 # Metadata from Eclipse Project
 .metadata/*
