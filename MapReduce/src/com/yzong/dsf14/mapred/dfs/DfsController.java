@@ -1,9 +1,12 @@
 package com.yzong.dsf14.mapred.dfs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang.RandomStringUtils;
 
 /**
  * Main controller that keeps track of and manipulates files on the DFS.
@@ -13,11 +16,15 @@ import java.util.Set;
  */
 public class DfsController {
 
-  public DFSCluster ClusterConfig;
+  public DfsCluster ClusterConfig;
   public List<FileProp> FileList;
   public HashMap<String, List<ShardInfo>> LookupTable;
+  public String SessionID;
+  public String DirPath;
 
-  public DfsController(DFSCluster cluster) {
+  public DfsController(DfsCluster cluster) {
+    this.SessionID = RandomStringUtils.randomAlphanumeric(8);
+    System.out.printf("Initializing session %s...\n", SessionID);
     this.ClusterConfig = cluster; // Save cluster info
     this.FileList = new ArrayList<FileProp>(); // Empty list of files
     this.LookupTable = new HashMap<String, List<ShardInfo>>(); // Worker Node -> File Shards
@@ -25,6 +32,9 @@ public class DfsController {
     for (String name : cluster.WorkerConfig.keySet()) {
       this.LookupTable.put(name, new ArrayList<ShardInfo>());
     }
+    /* Create a `tmp` directory for holding temp files */
+    new File("./tmp" + SessionID).mkdir();
+    this.DirPath = "./tmp-DFS-" + SessionID;
   }
 
   /**
@@ -58,23 +68,16 @@ public class DfsController {
    */
   public boolean waitForDFS() {
     Set<String> unavailableWorker = ClusterConfig.WorkerConfig.keySet();
-    int remainingRound = 10;
-    while (unavailableWorker.size() != 0 && remainingRound > 0) {
-      remainingRound--;
+    while (unavailableWorker.size() != 0) {
       System.out.printf("Waiting for worker nodes... %d remaining...\n", unavailableWorker.size());
       // TODO: Contact work nodes.
       try {
-        Thread.sleep(2000); // Waits for 2 seconds before another round.
+        Thread.sleep(1000); // Waits for 2 seconds before another round.
       } catch (InterruptedException ex) {
         Thread.currentThread().interrupt();
       }
     }
-    if (unavailableWorker.size() == 0) {
-      System.out.println("Cluster initialized successfully.");
-      return true;
-    } else {
-      System.out.printf("Cannot establish connection with %d nodes!\n", unavailableWorker.size());
-      return false;
-    }
+    System.out.println("Cluster initialized successfully.");
+    return true;
   }
 }

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.yzong.dsf14.mapred.dfs;
 
 /**
@@ -11,11 +8,11 @@ package com.yzong.dsf14.mapred.dfs;
  * @author Jimmy Zong <yzong@cmu.edu>
  *
  */
-public class DFSWorkerInfo {
+public class DfsWorkerInfo {
   public String HostName;
   public int PortNum;
 
-  public DFSWorkerInfo(String hostName, int portNum) {
+  public DfsWorkerInfo(String hostName, int portNum) {
     HostName = hostName;
     PortNum = portNum;
   }

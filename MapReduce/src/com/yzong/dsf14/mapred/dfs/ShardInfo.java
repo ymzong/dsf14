@@ -1,8 +1,8 @@
 package com.yzong.dsf14.mapred.dfs;
 
 /**
- * Represents a segment of file on a Worker node. Contains <tt>FileName</tt> and <tt>ShardIndex</tt>
- * .
+ * Represents a segment of file on a Worker node. Contains <tt>FileName</tt>, <tt>ShardIndex</tt>,
+ * and <tt>RemotePath</tt>.
  * 
  * @author Jimmy Zong <yzong@cmu.edu>
  *
@@ -10,10 +10,12 @@ package com.yzong.dsf14.mapred.dfs;
 public class ShardInfo {
   public String FileName;
   public int ShardIndex;
+  public String RemotePath;
 
-  public ShardInfo(String fileName, int shardIndex) {
+  public ShardInfo(String fileName, int shardIndex, String remotePath) {
     FileName = fileName;
     ShardIndex = shardIndex;
+    RemotePath = remotePath;
   }
 
   @Override

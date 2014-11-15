@@ -14,16 +14,16 @@ import java.util.HashMap;
  * @author Jimmy Zong <yzong@cmu.edu>
  *
  */
-public class DFSCluster {
+public class DfsCluster {
 
   public String MasterHost;
   public int MasterPort;
   public int ShardSize;
   public int Replication;
-  public HashMap<String, DFSWorkerInfo> WorkerConfig;
+  public HashMap<String, DfsWorkerInfo> WorkerConfig;
 
-  public DFSCluster(String masterHost, int masterPort, int shardSize, int replication,
-      HashMap<String, DFSWorkerInfo> workerConfig) {
+  public DfsCluster(String masterHost, int masterPort, int shardSize, int replication,
+      HashMap<String, DfsWorkerInfo> workerConfig) {
     MasterHost = masterHost;
     MasterPort = masterPort;
     ShardSize = shardSize;

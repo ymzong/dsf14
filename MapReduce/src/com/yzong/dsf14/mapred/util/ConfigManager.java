@@ -9,8 +9,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
-import com.yzong.dsf14.mapred.dfs.DFSCluster;
-import com.yzong.dsf14.mapred.dfs.DFSWorkerInfo;
+import com.yzong.dsf14.mapred.dfs.DfsCluster;
+import com.yzong.dsf14.mapred.dfs.DfsWorkerInfo;
 import com.yzong.dsf14.mapred.mapred.MRWorkerInfo;
 import com.yzong.dsf14.mapred.mapred.MapRedCluster;
 
@@ -23,7 +23,7 @@ import com.yzong.dsf14.mapred.mapred.MapRedCluster;
  */
 public class ConfigManager {
   public String PathName;
-  public DFSCluster DFSClusterStatus;
+  public DfsCluster DFSClusterStatus;
   public MapRedCluster MRClusterStatus;
 
   public ConfigManager(String pathName) {
@@ -76,7 +76,7 @@ public class ConfigManager {
    * 
    * @return Parsed <tt>DSFCluster</tt> object containing cluster information.
    */
-  public DFSCluster parseDFSConfig() {
+  public DfsCluster parseDFSConfig() {
     XMLConfiguration config = null;
     try {
       config = new XMLConfiguration(PathName);
@@ -86,13 +86,13 @@ public class ConfigManager {
       int ShardSize = Integer.parseInt((String) config.getProperty("DFSShardSize"));
       int Replication = Integer.parseInt((String) config.getProperty("DFSReplication"));
       List<HierarchicalConfiguration> Workers = config.configurationsAt("Workers.Worker");
-      HashMap<String, DFSWorkerInfo> WorkerInfo = new HashMap<String, DFSWorkerInfo>();
+      HashMap<String, DfsWorkerInfo> WorkerInfo = new HashMap<String, DfsWorkerInfo>();
       for (HierarchicalConfiguration w : Workers) {
-        DFSWorkerInfo worker = new DFSWorkerInfo(w.getString("host"), w.getInt("fsport"));
+        DfsWorkerInfo worker = new DfsWorkerInfo(w.getString("host"), w.getInt("fsport"));
         WorkerInfo.put(w.getString("name"), worker);
       }
       /* Create ClusterConfig object and return to CLI. */
-      DFSCluster cc = new DFSCluster(MasterHost, MasterPort, ShardSize, Replication, WorkerInfo);
+      DfsCluster cc = new DfsCluster(MasterHost, MasterPort, ShardSize, Replication, WorkerInfo);
       this.DFSClusterStatus = cc;
       return cc;
     }
