@@ -2,14 +2,22 @@ package com.yzong.dsf14.mapred.dfs;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,7 +58,7 @@ public class DfsController {
   }
 
   /**
-   * Counts the number of lines of a given file. (StackOverflow #453018)
+   * Counts the number of lines of a given file. (SO #453018)
    *
    * @param fileName File name for the file to count.
    * @return Number of lines in the file.
@@ -143,6 +151,7 @@ public class DfsController {
       }
       targets.add(workers.get(newIdx));
     }
+    /* Starting pushing shards to worker nodes. */
     for (String w : targets) {
       try {
         Socket outSocket =
@@ -186,14 +195,80 @@ public class DfsController {
       System.out.printf("Error: attempted to obtain inexistent file `%s`!\n", fileName);
       return false;
     }
+    System.out.printf("Polling shards of %s from worker nodes...\n", fileName);
     FileProp f = FileList.get(fileName);
     int shards = f.NumShards;
-    /* Grab each chunk from some node. */
+    /* Find each chunk of the file from workers. */
     for (int i = 0; i < shards; i++) {
-      // TODO: Use 'GET' request to obtain chunk.
+      DfsCommunicationPkg outPkg = null;
+      boolean succeed = false;
+      for (String worker : ClusterConfig.WorkerConfig.keySet()) {
+        int idx = -1;
+        if ((idx = LookupTable.get(worker).indexOf(new ShardInfo(fileName, i, ""))) != -1) {
+          outPkg = new DfsCommunicationPkg("GET", LookupTable.get(worker).get(idx).FileName);
+          try {
+            Socket outSocket =
+                new Socket(ClusterConfig.WorkerConfig.get(worker).HostName,
+                    ClusterConfig.WorkerConfig.get(worker).PortNum);
+            ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+            out.writeObject(outPkg);
+            DfsCommunicationPkg response = (DfsCommunicationPkg) in.readObject();
+            if (!response.Command.equals("OK")) {
+              System.out.printf("Error while loading file %s:%d from %s: %s!\n", fileName, i,
+                  worker, (String) response.Body);
+              outSocket.close();
+            } else {
+              StringBuffer text = (StringBuffer) response.Body;
+              String outPath = this.DirPath + "/" + fileName + "." + i;
+              BufferedWriter outBuffer = new BufferedWriter(new FileWriter(outPath));
+              outBuffer.write(text.toString());
+              outBuffer.flush();
+              outBuffer.close();
+              outSocket.close();
+              succeed = true;
+              break; // Move on to next shard!
+            }
+          }
+          /* Connection error while grabbing a shard -- move on. */
+          catch (Exception e) {
+            System.out.printf("Connection error while loading file %s:%d from %s!\n", fileName, i,
+                worker);
+          }
+        }
+      }
+      /* If the shard is not found anywhere, raise an error! */
+      if (!succeed) {
+        System.out.printf("Shard `%s%:%d` not found on any worker node!\n", fileName, i);
+        FileList.remove(fileName); // Remove the file from "available DFS file" list.
+        return false;
+      }
     }
-    // TODO: Stick all chunks together, and write to target.
-    return false;
+    /* All `GET`s have succeeded. Stick files together. (SO #10675450) */
+    System.out.printf("Merging shards of %s into target file...\n", fileName);
+    List<Path> inputs = new ArrayList<Path>();
+    for (int i = 0; i < shards; i++) {
+      inputs.add(Paths.get(this.DirPath + "/" + fileName + "." + i));
+    }
+    Path output = Paths.get(localPath);
+    Charset charset = StandardCharsets.UTF_8;
+    try {
+      for (Path path : inputs) {
+        List<String> lines = Files.readAllLines(path, charset);
+        Files.write(output, lines, charset, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        /* Add a new-line character between files */
+        BufferedWriter bufferWritter = new BufferedWriter(new FileWriter(localPath,true));
+        bufferWritter.write(System.getProperty("line.separator"));
+        bufferWritter.close();
+      }
+      System.out.printf("Succeed outputing DFS `%s` to local `%s`!\n", fileName, localPath);
+      return true;
+    }
+    /* Exception occured while merging to output file... */
+    catch (Exception e) {
+      System.out.printf("Error while merging the shards: %s\n", e.getMessage());
+      return false;
+    }
   }
 
   /**

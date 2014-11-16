@@ -84,7 +84,16 @@ public class DfsWorker {
           }
           /* Case Three: Client requests file shard. */
           else if (inPkg.Command.equals("GET")) {
-
+            System.out.println("INFO -- `GET` request received from client.");
+            DfsCommunicationPkg outPkg = null;
+            try {
+              String localPath = (String) inPkg.Body;
+              outPkg = new DfsCommunicationPkg("OK", FileUtils.readFileToString(new File(localPath)));
+            } catch (Exception e) {
+              outPkg = new DfsCommunicationPkg("XXX", e.getMessage());
+              System.out.printf("ERROR -- %s happened while processing `GET`.\n", e.getMessage());
+            }
+            out.writeObject(outPkg);
           }
           /* Case Four: Master terminates DFS sessoin. */
           else if (inPkg.Command.equals("DESTROY")) {

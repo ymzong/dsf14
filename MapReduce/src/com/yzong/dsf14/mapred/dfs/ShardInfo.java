@@ -18,6 +18,7 @@ public class ShardInfo {
     RemotePath = remotePath;
   }
 
+  /* For two ShardInfo objects, their equality is determined by file name and shard index only. */
   @Override
   public int hashCode() {
     final int prime = 31;
