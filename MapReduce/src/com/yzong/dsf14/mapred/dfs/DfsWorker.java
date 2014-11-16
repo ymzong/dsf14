@@ -1,10 +1,13 @@
 package com.yzong.dsf14.mapred.dfs;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import org.apache.commons.io.FileUtils;
 
 import com.yzong.dsf14.mapred.util.ConfigManager;
 
@@ -33,7 +36,12 @@ public class DfsWorker {
     }
     /* Load the cluster topology. */
     ConfigManager cm = new ConfigManager(CFG_PATH);
-    cm.parseDFSConfig();
+    DfsCluster clusterStatus = cm.parseDFSConfig();
+    if (clusterStatus == null) {
+      System.out.println("Please fix your config file and try again!");
+      System.exit(1);
+    }
+    DfsController DC = new DfsController(clusterStatus);
     System.out.printf("Config file loaded from %s!\n", CFG_PATH);
     /* Spin up DFS Worker Server to handle requests. */
     ServerSocket srv = null;
@@ -49,7 +57,7 @@ public class DfsWorker {
           DfsCommunicationPkg inPkg = (DfsCommunicationPkg) in.readObject();
           /* Case One: Heartbeat request. */
           if (inPkg.Command.equals("PING")) {
-            System.out.printf("INFO -- `PING` request received from client.");
+            System.out.println("INFO -- `PING` request received from client.");
             out.writeObject(new DfsCommunicationPkg("PONG", null));
           }
           /* Case Two: Master pushes shard request. */
@@ -60,8 +68,18 @@ public class DfsWorker {
           else if (inPkg.Command.equals("GET")) {
 
           }
-          /* Case Four: Incoming package cannot be interpreted. */
+          /* Case Four: Master terminates DFS sessoin. */
+          else if (inPkg.Command.equals("DESTROY")) {
+            /* Remove local tmp directory */
+            System.out.println("INFO -- `DESTROY` request received from Master.");
+            out.writeObject(new DfsCommunicationPkg("OK", null));
+            System.out.println("INFO -- Cleaning up working directory...");
+            FileUtils.deleteDirectory(new File(DC.DirPath));
+            return;
+          }
+          /* Case Five: Incoming package cannot be interpreted. */
           else {
+            System.out.println("ERROR -- Incoming package cannot be interpreted!");
             out.writeObject(new DfsCommunicationPkg("XXX", null));
           }
         }

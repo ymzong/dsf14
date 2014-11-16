@@ -1,5 +1,13 @@
 package com.yzong.dsf14.mapred.dfs;
 
+import java.io.Console;
+import java.io.File;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+import org.apache.commons.io.FileUtils;
+
 import com.yzong.dsf14.mapred.util.ConfigManager;
 
 
@@ -27,13 +35,39 @@ public class DfsMaster {
       System.exit(1);
     }
     System.out.printf("Config file loaded from %s!\n", CFG_PATH);
-    DfsCluster dfsCluster =
-        new DfsCluster(cm.DFSClusterStatus.MasterHost, cm.DFSClusterStatus.MasterPort,
-            cm.DFSClusterStatus.ShardSize, cm.DFSClusterStatus.Replication,
-            cm.DFSClusterStatus.WorkerConfig);
-    DfsController DC = new DfsController(dfsCluster);
+    DfsController DC = new DfsController(clusterStatus);
     DC.waitForDFS();
-    
+    /* Start the DFS Master Shell. */
+    Console console = System.console();
+    String input = console.readLine("DFS Master > ");
+    while (!input.equals("quit") && !input.equals("exit")) {
+      // TODO: mainloop.
+      input = console.readLine("\nDFS Master > ");
+    }
+    /* When user exists, clean up the entire file system. */
+    System.out.println("Cleaning up DFS...");
+    try {
+      /* Send `destroy` message to each worker. */
+      for (String w : clusterStatus.WorkerConfig.keySet()) {
+        Socket outSocket =
+            new Socket(clusterStatus.WorkerConfig.get(w).HostName,
+                clusterStatus.WorkerConfig.get(w).PortNum);
+        ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+        out.writeObject(new DfsCommunicationPkg("DESTROY", null));
+        String msg = ((DfsCommunicationPkg) in.readObject()).Command;
+        if (!msg.equals("OK")) {
+          System.out.printf("Error occured while cleaning up %s. Please do so manually.\n", w);
+        }
+        outSocket.close();
+      }
+      /* Clean up Master's own working directory */
+      FileUtils.deleteDirectory(new File(DC.DirPath));
+    } catch (Exception e) {
+      /* Ignore any exceptions occured during clean-up. */
+    } finally {
+      System.out.println("Done. Goodbye!");
+      System.exit(0);
+    }
   }
-
 }

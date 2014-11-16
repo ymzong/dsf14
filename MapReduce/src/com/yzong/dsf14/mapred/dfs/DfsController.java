@@ -6,9 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.lang.RandomStringUtils;
 
 /**
@@ -36,7 +35,7 @@ public class DfsController {
       this.LookupTable.put(name, new ArrayList<ShardInfo>());
     }
     /* Create a `tmp` directory for holding temp files */
-    new File("./tmp" + SessionID).mkdir();
+    new File("./tmp-DFS-" + SessionID).mkdir();
     this.DirPath = "./tmp-DFS-" + SessionID;
   }
 
@@ -70,10 +69,11 @@ public class DfsController {
    * @return <tt>true</tt> iff the cluster initialized successfully.
    */
   public boolean waitForDFS() {
-    Set<String> unavailableWorker = ClusterConfig.WorkerConfig.keySet();
+    List<String> unavailableWorker = new ArrayList<String>(ClusterConfig.WorkerConfig.keySet());
     while (unavailableWorker.size() != 0) {
       System.out.printf("\nWaiting for worker nodes... (%d remaining)\n", unavailableWorker.size());
-      for (String w : unavailableWorker) {
+      for (Iterator<String> i = unavailableWorker.iterator(); i.hasNext();) {
+        String w = i.next();
         Socket outSocket;
         try {
           outSocket =
@@ -85,7 +85,7 @@ public class DfsController {
           String response = ((DfsCommunicationPkg) in.readObject()).Command;
           outSocket.close();
           if (response.equals("PONG")) {
-            unavailableWorker.remove(w);
+            i.remove();
           }
         }
         /* If connection error occurs, ignore and continue. */

@@ -100,8 +100,8 @@ public class ConfigManager {
     catch (Exception e) {
       System.err.println("Error while loading configuration...");
       Console console = System.console();
-      if (!console.readLine("Want to generate a default config at denoted location? (Y)")
-          .toLowerCase().startsWith("n")) {
+      if (!console.readLine("Want to generate a default config at denoted location? (N)")
+          .toLowerCase().startsWith("y")) {
         generateConfig();
       }
     }
@@ -144,8 +144,8 @@ public class ConfigManager {
     catch (Exception e) {
       System.err.println("Error while loading configuration...");
       Console console = System.console();
-      if (!console.readLine("Want to generate a default config at denoted location? (Y)")
-          .toLowerCase().startsWith("n")) {
+      if (!console.readLine("Want to generate a default config at denoted location? (N)")
+          .toLowerCase().startsWith("y")) {
         generateConfig();
       }
     }
