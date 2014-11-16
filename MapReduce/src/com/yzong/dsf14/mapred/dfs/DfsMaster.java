@@ -44,6 +44,8 @@ public class DfsMaster {
       // TODO: mainloop.
       DC.putFile("syslog", "coolstuff");
       input = console.readLine("\nDFS Master > ");
+      DC.getFile("coolstuff", "resultingfile");
+      input = console.readLine("\nBlah");
     }
     /* When user exists, clean up the entire file system. */
     System.out.println("Cleaning up DFS...");

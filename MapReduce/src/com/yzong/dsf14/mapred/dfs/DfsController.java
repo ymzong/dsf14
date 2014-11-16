@@ -205,7 +205,7 @@ public class DfsController {
       for (String worker : ClusterConfig.WorkerConfig.keySet()) {
         int idx = -1;
         if ((idx = LookupTable.get(worker).indexOf(new ShardInfo(fileName, i, ""))) != -1) {
-          outPkg = new DfsCommunicationPkg("GET", LookupTable.get(worker).get(idx).FileName);
+          outPkg = new DfsCommunicationPkg("GET", LookupTable.get(worker).get(idx).RemotePath);
           try {
             Socket outSocket =
                 new Socket(ClusterConfig.WorkerConfig.get(worker).HostName,
@@ -219,10 +219,10 @@ public class DfsController {
                   worker, (String) response.Body);
               outSocket.close();
             } else {
-              StringBuffer text = (StringBuffer) response.Body;
+              String text = (String) response.Body;
               String outPath = this.DirPath + "/" + fileName + "." + i;
               BufferedWriter outBuffer = new BufferedWriter(new FileWriter(outPath));
-              outBuffer.write(text.toString());
+              outBuffer.write(text);
               outBuffer.flush();
               outBuffer.close();
               outSocket.close();
@@ -232,14 +232,14 @@ public class DfsController {
           }
           /* Connection error while grabbing a shard -- move on. */
           catch (Exception e) {
-            System.out.printf("Connection error while loading file %s:%d from %s!\n", fileName, i,
-                worker);
+            System.out.printf("Warning: I/O exception while loading file %s:%d from %s -- %s\n", fileName, i,
+                worker, e.getMessage());
           }
         }
       }
       /* If the shard is not found anywhere, raise an error! */
       if (!succeed) {
-        System.out.printf("Shard `%s%:%d` not found on any worker node!\n", fileName, i);
+        System.out.printf("Shard `%s:%d` not found on any worker node!\n", fileName, i);
         FileList.remove(fileName); // Remove the file from "available DFS file" list.
         return false;
       }
@@ -253,13 +253,13 @@ public class DfsController {
     Path output = Paths.get(localPath);
     Charset charset = StandardCharsets.UTF_8;
     try {
+      // Remove the file if already exists.
+      if (new File(localPath).exists()) {
+        new File(localPath).delete();
+      }
       for (Path path : inputs) {
         List<String> lines = Files.readAllLines(path, charset);
         Files.write(output, lines, charset, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        /* Add a new-line character between files */
-        BufferedWriter bufferWritter = new BufferedWriter(new FileWriter(localPath,true));
-        bufferWritter.write(System.getProperty("line.separator"));
-        bufferWritter.close();
       }
       System.out.printf("Succeed outputing DFS `%s` to local `%s`!\n", fileName, localPath);
       return true;

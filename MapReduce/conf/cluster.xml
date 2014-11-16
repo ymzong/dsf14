@@ -3,7 +3,7 @@
 <MapPerHostPerCore>1.5</MapPerHostPerCore>
 <ReducePerHostPerCore>1.0</ReducePerHostPerCore>
 <DFSShardSize>1000</DFSShardSize>
-<DFSReplication>3</DFSReplication>
+<DFSReplication>9</DFSReplication>
 <Master>
 <host>ghc35.ghc.andrew.cmu.edu</host>
 <fsport>9190</fsport>
