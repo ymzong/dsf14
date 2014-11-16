@@ -11,8 +11,8 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 import com.yzong.dsf14.mapred.dfs.DfsCluster;
 import com.yzong.dsf14.mapred.dfs.DfsWorkerInfo;
-import com.yzong.dsf14.mapred.mapred.MRWorkerInfo;
 import com.yzong.dsf14.mapred.mapred.MapRedCluster;
+import com.yzong.dsf14.mapred.mapred.MapRedWorkerInfo;
 
 /**
  * Contains utility functions that generate default configuration file for DFS/MapRed cluster and
@@ -127,10 +127,10 @@ public class ConfigManager {
       String MasterHost = (String) config.getProperty("Master.host");
       int MasterPort = Integer.parseInt((String) config.getProperty("Master.mrport"));
       List<HierarchicalConfiguration> Workers = config.configurationsAt("Workers.Worker");
-      HashMap<String, MRWorkerInfo> WorkerInfo = new HashMap<String, MRWorkerInfo>();
+      HashMap<String, MapRedWorkerInfo> WorkerInfo = new HashMap<String, MapRedWorkerInfo>();
       for (HierarchicalConfiguration w : Workers) {
-        MRWorkerInfo worker =
-            new MRWorkerInfo(w.getString("host"), w.getInt("mrport"),
+        MapRedWorkerInfo worker =
+            new MapRedWorkerInfo(w.getString("host"), w.getInt("mrport"),
                 (int) Math.floor(MapPerHostPerCore * w.getInt("cores")),
                 (int) Math.floor(ReducePerHostPerCore * w.getInt("cores")));
         WorkerInfo.put(w.getString("name"), worker);

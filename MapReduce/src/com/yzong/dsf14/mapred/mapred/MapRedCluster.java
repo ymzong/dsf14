@@ -15,9 +15,9 @@ public class MapRedCluster {
 
   public String MasterHost;
   public int MasterPort;
-  public HashMap<String, MRWorkerInfo> WorkerConfig;
+  public HashMap<String, MapRedWorkerInfo> WorkerConfig;
 
-  public MapRedCluster(String masterHost, int masterPort, HashMap<String, MRWorkerInfo> workerConfig) {
+  public MapRedCluster(String masterHost, int masterPort, HashMap<String, MapRedWorkerInfo> workerConfig) {
     MasterHost = masterHost;
     MasterPort = masterPort;
     WorkerConfig = workerConfig;

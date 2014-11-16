@@ -44,7 +44,7 @@ public class DfsController {
 
   public DfsController(DfsCluster cluster) {
     this.SessionID = RandomStringUtils.randomAlphanumeric(8);
-    System.out.printf("Initializing session `%s`...\n", SessionID);
+    System.out.printf("Initializing DFS session `%s`...\n", SessionID);
     this.ClusterConfig = cluster; // Save cluster info
     this.FileList = new HashMap<String, FileProp>(); // Empty list of files
     this.LookupTable = new HashMap<String, List<ShardInfo>>(); // Worker Node -> File Shards
