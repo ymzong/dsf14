@@ -12,4 +12,11 @@ public class FileProp {
   public int RecordSize;
   public int NumShards;
 
+  public FileProp(String fileName, int recordSize, int numShards) {
+    FileName = fileName;
+    RecordSize = recordSize;
+    NumShards = numShards;
+  }
+
+
 }

@@ -7,7 +7,7 @@
 <Master>
 <host>ghc35.ghc.andrew.cmu.edu</host>
 <fsport>9190</fsport>
-<mrport>9192</mrport>
+<mrport>9191</mrport>
 </Master>
 <Workers>
 <Worker>
@@ -15,7 +15,14 @@
 <fsport>9192</fsport>
 <mrport>9193</mrport>
 <cores>6</cores>
-<name>unix1</name>
+<name>lc1</name>
+</Worker>
+<Worker>
+<host>localhost</host>
+<fsport>9194</fsport>
+<mrport>9195</mrport>
+<cores>6</cores>
+<name>lc2</name>
 </Worker>
 </Workers>
 </MapReduceConfig>

@@ -1,6 +1,8 @@
 package com.yzong.dsf14.mapred.dfs;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -62,7 +64,23 @@ public class DfsWorker {
           }
           /* Case Two: Master pushes shard request. */
           else if (inPkg.Command.equals("ADD")) {
-
+            System.out.println("INFO -- `ADD` request received from client.");
+            DfsCommunicationPkg outPkg = null;
+            try {
+              Object[] bodyArgs = (Object[]) inPkg.Body;
+              StringBuffer text = (StringBuffer) bodyArgs[0];
+              String fileName = (String) bodyArgs[1];
+              String outPath = DC.DirPath + "/" + fileName;
+              BufferedWriter outBuffer = new BufferedWriter(new FileWriter(outPath));
+              outBuffer.write(text.toString());
+              outBuffer.flush();
+              outBuffer.close();
+              outPkg = new DfsCommunicationPkg("OK", outPath);
+            } catch (Exception e) {
+              outPkg = new DfsCommunicationPkg("XXX", e.getMessage());
+              System.out.printf("ERROR -- %s happened while processing `ADD`.\n", e.getMessage());
+            }
+            out.writeObject(outPkg);
           }
           /* Case Three: Client requests file shard. */
           else if (inPkg.Command.equals("GET")) {

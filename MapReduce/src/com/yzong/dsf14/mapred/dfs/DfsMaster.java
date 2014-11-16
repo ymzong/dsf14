@@ -42,6 +42,7 @@ public class DfsMaster {
     String input = console.readLine("DFS Master > ");
     while (!input.equals("quit") && !input.equals("exit")) {
       // TODO: mainloop.
+      DC.putFile("syslog", "coolstuff");
       input = console.readLine("\nDFS Master > ");
     }
     /* When user exists, clean up the entire file system. */
