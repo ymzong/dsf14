@@ -27,7 +27,7 @@ import org.apache.commons.lang.RandomStringUtils;
 public class DfsController {
 
   public DfsCluster ClusterConfig;
-  public List<FileProp> FileList;
+  public HashMap<String, FileProp> FileList;
   public HashMap<String, List<ShardInfo>> LookupTable;
   public String SessionID;
   public String DirPath;
@@ -38,7 +38,7 @@ public class DfsController {
     this.SessionID = RandomStringUtils.randomAlphanumeric(8);
     System.out.printf("Initializing session `%s`...\n", SessionID);
     this.ClusterConfig = cluster; // Save cluster info
-    this.FileList = new ArrayList<FileProp>(); // Empty list of files
+    this.FileList = new HashMap<String, FileProp>(); // Empty list of files
     this.LookupTable = new HashMap<String, List<ShardInfo>>(); // Worker Node -> File Shards
     // Initialize the shard list of each node as empty.
     for (String name : cluster.WorkerConfig.keySet()) {
@@ -86,7 +86,7 @@ public class DfsController {
    */
   public boolean putFile(String localPath, String fileName) {
     final int lineLimit = ClusterConfig.ShardSize;
-    if (FileList.contains(fileName)) {
+    if (FileList.containsKey(fileName)) {
       System.out.printf("File `%s` already exists!", fileName);
       return false;
     }
@@ -114,7 +114,7 @@ public class DfsController {
       }
       bufferedReader.close();
       /* Upon success, add the file to official file list. */
-      FileList.add(new FileProp(fileName, lineNum, fileCounter));
+      FileList.put(fileName, new FileProp(fileName, lineNum, fileCounter));
       return true;
     } catch (Exception e) {
       System.out.printf("Error while processing %s->%s!\n", localPath, fileName);
@@ -182,11 +182,17 @@ public class DfsController {
    * @return <tt>true</tt> iff the operation succeeds.
    */
   public boolean getFile(String fileName, String localPath) {
-    if (!FileList.contains(fileName)) {
+    if (!FileList.containsKey(fileName)) {
       System.out.printf("Error: attempted to obtain inexistent file `%s`!\n", fileName);
       return false;
     }
-
+    FileProp f = FileList.get(fileName);
+    int shards = f.NumShards;
+    /* Grab each chunk from some node. */
+    for (int i = 0; i < shards; i++) {
+      // TODO: Use 'GET' request to obtain chunk.
+    }
+    // TODO: Stick all chunks together, and write to target.
     return false;
   }
 
