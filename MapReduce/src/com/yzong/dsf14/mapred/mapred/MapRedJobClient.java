@@ -27,7 +27,7 @@ public class MapRedJobClient {
    * @param wait <tt>True</tt> if user wishes to wait for the job to complete.
    * @return <tt>True</tt> iff the job completes successfully.
    */
-  boolean run(boolean wait) {
+  public boolean run(boolean wait) {
     try {
 
     }
@@ -44,7 +44,7 @@ public class MapRedJobClient {
    * 
    * @return <tt>True</tt> iff the job completes successfully.
    */
-  boolean run() {
+  public boolean run() {
     return run(true);
   }
 }

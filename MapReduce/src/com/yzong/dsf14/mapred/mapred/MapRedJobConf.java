@@ -2,6 +2,8 @@ package com.yzong.dsf14.mapred.mapred;
 
 import org.apache.commons.lang.RandomStringUtils;
 
+import com.yzong.dsf14.mapred.io.InputFormat;
+
 /**
  * Contains all config parameters of a MapReduce job.
  * 
@@ -12,6 +14,7 @@ public class MapRedJobConf {
 
   private Class<?> MapRedDefinition;
   private String MapRedJobName = RandomStringUtils.randomAlphanumeric(8);
+  private InputFormat InputFormat;
   private String InputPath = null;
   private String OutputPath = null;
   private Class<?> MapperClass = null;
@@ -108,6 +111,20 @@ public class MapRedJobConf {
    */
   public void setMapRedDefinition(Class<?> mapRedDefinition) {
     MapRedDefinition = mapRedDefinition;
+  }
+
+  /**
+   * @return the inputFormat
+   */
+  public InputFormat getInputFormat() {
+    return InputFormat;
+  }
+
+  /**
+   * @param inputFormat the inputFormat to set
+   */
+  public void setInputFormat(InputFormat inputFormat) {
+    InputFormat = inputFormat;
   }
 
 }

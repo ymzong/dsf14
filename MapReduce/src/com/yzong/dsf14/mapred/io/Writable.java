@@ -1,4 +1,4 @@
-package com.yzong.dsf14.mapred.mapred.io;
+package com.yzong.dsf14.mapred.io;
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
 public interface Writable extends Serializable {
 
   /**
-   * Parses a data input to a Writable object.
+   * Parses a <tt>String</tt> data input to a Writable object.
    * 
    * @param in Input as <tt>String</tt>.
    */
