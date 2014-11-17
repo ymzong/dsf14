@@ -34,7 +34,7 @@ import org.apache.commons.lang.RandomStringUtils;
  */
 public class DfsController {
 
-  public DfsCluster ClusterConfig;
+  public DfsConfig dfsConfig;
   public HashMap<String, FileProp> FileList;
   public HashMap<String, List<ShardInfo>> LookupTable;
   public String SessionID;
@@ -42,14 +42,14 @@ public class DfsController {
 
   private Random random = new Random();
 
-  public DfsController(DfsCluster cluster) {
+  public DfsController(DfsConfig cluster) {
     this.SessionID = RandomStringUtils.randomAlphanumeric(8);
     System.out.printf("Initializing DFS session `%s`...\n", SessionID);
-    this.ClusterConfig = cluster; // Save cluster info
+    this.dfsConfig = cluster; // Save cluster info
     this.FileList = new HashMap<String, FileProp>(); // Empty list of files
     this.LookupTable = new HashMap<String, List<ShardInfo>>(); // Worker Node -> File Shards
     // Initialize the shard list of each node as empty.
-    for (String name : cluster.WorkerConfig.keySet()) {
+    for (String name : cluster.Wkrs.keySet()) {
       this.LookupTable.put(name, new ArrayList<ShardInfo>());
     }
     /* Create a `tmp` directory for holding temp files */
@@ -93,7 +93,7 @@ public class DfsController {
    * @return <tt>true</tt> iff the operation succeeds.
    */
   public boolean putFile(String localPath, String fileName) {
-    final int lineLimit = ClusterConfig.ShardSize;
+    final int lineLimit = dfsConfig.ShardSize;
     if (FileList.containsKey(fileName)) {
       System.out.printf("File `%s` already exists!", fileName);
       return false;
@@ -143,8 +143,8 @@ public class DfsController {
     DfsCommunicationPkg outPkg =
         new DfsCommunicationPkg("ADD", new Object[] {buffer, fileName + "." + fileCounter});
     List<String> targets = new ArrayList<String>();
-    List<String> workers = new ArrayList<String>(ClusterConfig.WorkerConfig.keySet());
-    for (int i = 0; i < Math.min(ClusterConfig.Replication, workers.size()); i++) {
+    List<String> workers = new ArrayList<String>(dfsConfig.Wkrs.keySet());
+    for (int i = 0; i < Math.min(dfsConfig.Replication, workers.size()); i++) {
       int newIdx = random.nextInt(workers.size());
       while (targets.contains(workers.get(newIdx))) {
         newIdx = random.nextInt(workers.size());
@@ -155,8 +155,8 @@ public class DfsController {
     for (String w : targets) {
       try {
         Socket outSocket =
-            new Socket(ClusterConfig.WorkerConfig.get(w).HostName,
-                ClusterConfig.WorkerConfig.get(w).PortNum);
+            new Socket(dfsConfig.Wkrs.get(w).HostName,
+                dfsConfig.Wkrs.get(w).PortNum);
         ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
         out.writeObject(outPkg);
@@ -177,7 +177,7 @@ public class DfsController {
       /* If connection error occurs, ignore and continue. */
       catch (Exception e) {
         System.out.printf("Warning: Worker %s:%d not reachable! Will retry in 2 seconds...\n",
-            ClusterConfig.WorkerConfig.get(w).HostName, ClusterConfig.WorkerConfig.get(w).PortNum);
+            dfsConfig.Wkrs.get(w).HostName, dfsConfig.Wkrs.get(w).PortNum);
       }
     }
     return true;
@@ -202,14 +202,14 @@ public class DfsController {
     for (int i = 0; i < shards; i++) {
       DfsCommunicationPkg outPkg = null;
       boolean succeed = false;
-      for (String worker : ClusterConfig.WorkerConfig.keySet()) {
+      for (String worker : dfsConfig.Wkrs.keySet()) {
         int idx = -1;
         if ((idx = LookupTable.get(worker).indexOf(new ShardInfo(fileName, i, ""))) != -1) {
           outPkg = new DfsCommunicationPkg("GET", LookupTable.get(worker).get(idx).RemotePath);
           try {
             Socket outSocket =
-                new Socket(ClusterConfig.WorkerConfig.get(worker).HostName,
-                    ClusterConfig.WorkerConfig.get(worker).PortNum);
+                new Socket(dfsConfig.Wkrs.get(worker).HostName,
+                    dfsConfig.Wkrs.get(worker).PortNum);
             ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
             out.writeObject(outPkg);
@@ -277,7 +277,7 @@ public class DfsController {
    * @return <tt>true</tt> iff the cluster initialized successfully.
    */
   public boolean waitForDFS() {
-    List<String> unavailableWorker = new ArrayList<String>(ClusterConfig.WorkerConfig.keySet());
+    List<String> unavailableWorker = new ArrayList<String>(dfsConfig.Wkrs.keySet());
     while (unavailableWorker.size() != 0) {
       System.out.printf("\nWaiting for worker nodes... (%d remaining)\n", unavailableWorker.size());
       for (Iterator<String> i = unavailableWorker.iterator(); i.hasNext();) {
@@ -285,8 +285,8 @@ public class DfsController {
         Socket outSocket;
         try {
           outSocket =
-              new Socket(ClusterConfig.WorkerConfig.get(w).HostName,
-                  ClusterConfig.WorkerConfig.get(w).PortNum);
+              new Socket(dfsConfig.Wkrs.get(w).HostName,
+                  dfsConfig.Wkrs.get(w).PortNum);
           ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
           ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
           out.writeObject(new DfsCommunicationPkg("PING", null));
@@ -300,8 +300,8 @@ public class DfsController {
         catch (Exception e) {
           System.out
               .printf("Warning: Worker %s:%d not reachable! Will retry in 2 seconds...\n",
-                  ClusterConfig.WorkerConfig.get(w).HostName,
-                  ClusterConfig.WorkerConfig.get(w).PortNum);
+                  dfsConfig.Wkrs.get(w).HostName,
+                  dfsConfig.Wkrs.get(w).PortNum);
         }
       }
       try {

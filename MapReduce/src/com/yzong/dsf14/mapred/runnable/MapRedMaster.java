@@ -1,8 +1,8 @@
 package com.yzong.dsf14.mapred.runnable;
 
-import com.yzong.dsf14.mapred.dfs.DfsCluster;
+import com.yzong.dsf14.mapred.dfs.DfsConfig;
 import com.yzong.dsf14.mapred.dfs.DfsController;
-import com.yzong.dsf14.mapred.framework.MapRedCluster;
+import com.yzong.dsf14.mapred.framework.MapRedConfig;
 import com.yzong.dsf14.mapred.framework.MapRedController;
 import com.yzong.dsf14.mapred.util.ConfigManager;
 
@@ -23,8 +23,8 @@ public class MapRedMaster {
     }
     final String CFG_PATH = args[0];
     ConfigManager cm = new ConfigManager(CFG_PATH);
-    DfsCluster dfsStatus = cm.parseDFSConfig();
-    MapRedCluster mrStatus = cm.parseMRConfig();
+    DfsConfig dfsStatus = cm.parseDFSConfig();
+    MapRedConfig mrStatus = cm.parseMRConfig();
     if (dfsStatus == null || mrStatus == null) {
       System.out.println("Please fix your config file and try again!");
       System.exit(1);

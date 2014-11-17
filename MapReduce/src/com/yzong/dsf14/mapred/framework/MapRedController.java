@@ -9,7 +9,7 @@ import java.util.concurrent.SynchronousQueue;
 
 import org.apache.commons.lang.RandomStringUtils;
 
-import com.yzong.dsf14.mapred.dfs.DfsCluster;
+import com.yzong.dsf14.mapred.dfs.DfsConfig;
 
 /**
  * @author Jimmy Zong <yzong@cmu.edu>
@@ -17,13 +17,13 @@ import com.yzong.dsf14.mapred.dfs.DfsCluster;
  */
 public class MapRedController {
 
-  public DfsCluster DfsConfig;
-  public MapRedCluster MapRedConfig;
+  public DfsConfig DfsConfig;
+  public MapRedConfig MapRedConfig;
   public String SessionID;
   public Queue<MapRedJob> JobQueue;
   public String DirPath;
   
-  public MapRedController(DfsCluster dfsStatus, MapRedCluster mrStatus) {
+  public MapRedController(DfsConfig dfsStatus, MapRedConfig mrStatus) {
     this.MapRedConfig = mrStatus;
     this.SessionID = RandomStringUtils.randomAlphanumeric(8);
     System.out.printf("Initializing MapReduce session `%s`...\n", SessionID);

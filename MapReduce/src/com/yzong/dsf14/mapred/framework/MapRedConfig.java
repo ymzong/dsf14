@@ -11,13 +11,13 @@ import java.util.HashMap;
  * @author Jimmy Zong <yzong@cmu.edu>
  *
  */
-public class MapRedCluster {
+public class MapRedConfig {
 
   public String MasterHost;
   public int MasterPort;
   public HashMap<String, MapRedWorkerInfo> WorkerConfig;
 
-  public MapRedCluster(String masterHost, int masterPort, HashMap<String, MapRedWorkerInfo> workerConfig) {
+  public MapRedConfig(String masterHost, int masterPort, HashMap<String, MapRedWorkerInfo> workerConfig) {
     MasterHost = masterHost;
     MasterPort = masterPort;
     WorkerConfig = workerConfig;

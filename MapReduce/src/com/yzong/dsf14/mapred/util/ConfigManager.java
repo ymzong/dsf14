@@ -9,9 +9,9 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
-import com.yzong.dsf14.mapred.dfs.DfsCluster;
+import com.yzong.dsf14.mapred.dfs.DfsConfig;
 import com.yzong.dsf14.mapred.dfs.DfsWorkerInfo;
-import com.yzong.dsf14.mapred.framework.MapRedCluster;
+import com.yzong.dsf14.mapred.framework.MapRedConfig;
 import com.yzong.dsf14.mapred.framework.MapRedWorkerInfo;
 
 /**
@@ -23,8 +23,8 @@ import com.yzong.dsf14.mapred.framework.MapRedWorkerInfo;
  */
 public class ConfigManager {
   public String PathName;
-  public DfsCluster DFSClusterStatus;
-  public MapRedCluster MRClusterStatus;
+  public DfsConfig DFSClusterConfig;
+  public MapRedConfig MRClusterConfig;
 
   public ConfigManager(String pathName) {
     this.PathName = pathName;
@@ -76,7 +76,7 @@ public class ConfigManager {
    * 
    * @return Parsed <tt>DSFCluster</tt> object containing cluster information.
    */
-  public DfsCluster parseDFSConfig() {
+  public DfsConfig parseDFSConfig() {
     XMLConfiguration config = null;
     try {
       config = new XMLConfiguration(PathName);
@@ -92,13 +92,13 @@ public class ConfigManager {
         WorkerInfo.put(w.getString("name"), worker);
       }
       /* Create ClusterConfig object and return to CLI. */
-      DfsCluster cc = new DfsCluster(MasterHost, MasterPort, ShardSize, Replication, WorkerInfo);
-      this.DFSClusterStatus = cc;
+      DfsConfig cc = new DfsConfig(MasterHost, MasterPort, ShardSize, Replication, WorkerInfo);
+      this.DFSClusterConfig = cc;
       return cc;
     }
     /* Upon parsing error, allow user to create a default XML instead. */
     catch (Exception e) {
-      System.err.println("Error while loading configuration...");
+      System.err.println("Error while loading DFS configuration...");
       Console console = System.console();
       if (!console.readLine("Want to generate a default config at denoted location? (N)")
           .toLowerCase().startsWith("y")) {
@@ -114,7 +114,7 @@ public class ConfigManager {
    * 
    * @return Parsed <tt>MRCluster</tt> object containing cluster information.
    */
-  public MapRedCluster parseMRConfig() {
+  public MapRedConfig parseMRConfig() {
     XMLConfiguration config = null;
     try {
       config = new XMLConfiguration(PathName);
@@ -136,13 +136,13 @@ public class ConfigManager {
         WorkerInfo.put(w.getString("name"), worker);
       }
       /* Create ClusterConfig object and return to CLI. */
-      MapRedCluster cc = new MapRedCluster(MasterHost, MasterPort, WorkerInfo);
-      this.MRClusterStatus = cc;
+      MapRedConfig cc = new MapRedConfig(MasterHost, MasterPort, WorkerInfo);
+      this.MRClusterConfig = cc;
       return cc;
     }
     /* Upon parsing error, allow user to create a default XML instead. */
     catch (Exception e) {
-      System.err.println("Error while loading configuration...");
+      System.err.println("Error while loading MR configuration...");
       Console console = System.console();
       if (!console.readLine("Want to generate a default config at denoted location? (N)")
           .toLowerCase().startsWith("y")) {
@@ -150,5 +150,18 @@ public class ConfigManager {
       }
     }
     return null;
+  }
+
+  /**
+   * Wrapper function for <tt>parseDFSConfig</tt> and <tt>parseMRConfig</tt>. Returns the
+   * configuration of an entire cluster.
+   * 
+   * @return
+   */
+  public ClusterConfig parseConfig() {
+    if (DFSClusterConfig == null || MRClusterConfig == null) {
+      return null;
+    }
+    return new ClusterConfig(DFSClusterConfig, MRClusterConfig);
   }
 }

@@ -38,7 +38,7 @@ public class DfsWorker {
     }
     /* Load the cluster topology. */
     ConfigManager cm = new ConfigManager(CFG_PATH);
-    DfsCluster clusterStatus = cm.parseDFSConfig();
+    DfsConfig clusterStatus = cm.parseDFSConfig();
     if (clusterStatus == null) {
       System.out.println("Please fix your config file and try again!");
       System.exit(1);

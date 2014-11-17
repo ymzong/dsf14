@@ -29,7 +29,7 @@ public class DfsMaster {
   public static void main(String[] args) {
     /* Load parameters from Config File. Verify participants. */
     ConfigManager cm = new ConfigManager(CFG_PATH);
-    DfsCluster clusterStatus = cm.parseDFSConfig();
+    DfsConfig clusterStatus = cm.parseDFSConfig();
     if (clusterStatus == null) {
       System.out.println("Please fix your config file and try again!");
       System.exit(1);
@@ -51,10 +51,10 @@ public class DfsMaster {
     System.out.println("Cleaning up DFS...");
     try {
       /* Send `destroy` message to each worker. */
-      for (String w : clusterStatus.WorkerConfig.keySet()) {
+      for (String w : clusterStatus.Wkrs.keySet()) {
         Socket outSocket =
-            new Socket(clusterStatus.WorkerConfig.get(w).HostName,
-                clusterStatus.WorkerConfig.get(w).PortNum);
+            new Socket(clusterStatus.Wkrs.get(w).HostName,
+                clusterStatus.Wkrs.get(w).PortNum);
         ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
         out.writeObject(new DfsCommunicationPkg("DESTROY", null));
