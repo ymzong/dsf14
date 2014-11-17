@@ -1,7 +1,9 @@
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.runnable;
 
 import com.yzong.dsf14.mapred.dfs.DfsCluster;
 import com.yzong.dsf14.mapred.dfs.DfsController;
+import com.yzong.dsf14.mapred.framework.MapRedCluster;
+import com.yzong.dsf14.mapred.framework.MapRedController;
 import com.yzong.dsf14.mapred.util.ConfigManager;
 
 /**

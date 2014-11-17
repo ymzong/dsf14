@@ -1,4 +1,4 @@
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.framework;
 
 /**
  * An interface for a MapReduce job to report its progress and status to the Master Scheduler.

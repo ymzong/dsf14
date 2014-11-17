@@ -1,9 +1,9 @@
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.runnable;
 
 import java.io.Console;
 
-import com.yzong.dsf14.mapred.dfs.DfsCluster;
 import com.yzong.dsf14.mapred.dfs.DfsController;
+import com.yzong.dsf14.mapred.framework.MapRedController;
 
 public class MapRedMasterCLI implements Runnable {
 

@@ -7,16 +7,16 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 
+import com.yzong.dsf14.mapred.framework.MapRedJobClient;
+import com.yzong.dsf14.mapred.framework.MapRedJobConf;
+import com.yzong.dsf14.mapred.framework.Mapper;
+import com.yzong.dsf14.mapred.framework.OutputCollector;
+import com.yzong.dsf14.mapred.framework.Reducer;
+import com.yzong.dsf14.mapred.framework.Reporter;
 import com.yzong.dsf14.mapred.io.IntWritable;
 import com.yzong.dsf14.mapred.io.LongWritable;
 import com.yzong.dsf14.mapred.io.SingularInputFormat;
 import com.yzong.dsf14.mapred.io.TextWritable;
-import com.yzong.dsf14.mapred.mapred.MapRedJobClient;
-import com.yzong.dsf14.mapred.mapred.MapRedJobConf;
-import com.yzong.dsf14.mapred.mapred.Mapper;
-import com.yzong.dsf14.mapred.mapred.OutputCollector;
-import com.yzong.dsf14.mapred.mapred.Reducer;
-import com.yzong.dsf14.mapred.mapred.Reporter;
 
 /**
  * Classic Example: Word Count job that counts the total number of words in a huge document.

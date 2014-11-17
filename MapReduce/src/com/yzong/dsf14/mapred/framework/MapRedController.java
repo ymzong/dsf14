@@ -1,20 +1,15 @@
 /**
  * 
  */
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.framework;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.SynchronousQueue;
 
 import org.apache.commons.lang.RandomStringUtils;
 
 import com.yzong.dsf14.mapred.dfs.DfsCluster;
-import com.yzong.dsf14.mapred.dfs.FileProp;
-import com.yzong.dsf14.mapred.dfs.ShardInfo;
 
 /**
  * @author Jimmy Zong <yzong@cmu.edu>

@@ -11,8 +11,8 @@ import org.apache.commons.configuration.XMLConfiguration;
 
 import com.yzong.dsf14.mapred.dfs.DfsCluster;
 import com.yzong.dsf14.mapred.dfs.DfsWorkerInfo;
-import com.yzong.dsf14.mapred.mapred.MapRedCluster;
-import com.yzong.dsf14.mapred.mapred.MapRedWorkerInfo;
+import com.yzong.dsf14.mapred.framework.MapRedCluster;
+import com.yzong.dsf14.mapred.framework.MapRedWorkerInfo;
 
 /**
  * Contains utility functions that generate default configuration file for DFS/MapRed cluster and

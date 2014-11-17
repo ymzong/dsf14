@@ -1,4 +1,4 @@
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.framework;
 
 import java.io.IOException;
 import java.util.Iterator;

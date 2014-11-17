@@ -1,4 +1,4 @@
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.framework;
 
 import org.apache.commons.lang.RandomStringUtils;
 

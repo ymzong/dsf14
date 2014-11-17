@@ -1,4 +1,4 @@
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.framework;
 
 /**
  * Wrapper interface that collects data output by <tt>Mapper</tt> or <tt>Reducer</tt>.

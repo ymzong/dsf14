@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.framework;
 
 /**
  * @author Jimmy Zong <yzong@cmu.edu>

@@ -1,4 +1,4 @@
-package com.yzong.dsf14.mapred.mapred;
+package com.yzong.dsf14.mapred.framework;
 
 /**
  * Interface for a user job to interact with MapReduce cluster. User program is allowed to submit
@@ -10,6 +10,20 @@ package com.yzong.dsf14.mapred.mapred;
 public class MapRedJobClient {
 
   private MapRedJobConf JobConf = null;
+
+  /**
+   * @return the jobConf
+   */
+  public MapRedJobConf getJobConf() {
+    return JobConf;
+  }
+
+  /**
+   * @param jobConf the jobConf to set
+   */
+  public void setJobConf(MapRedJobConf jobConf) {
+    JobConf = jobConf;
+  }
 
   /**
    * Build a MapReduce job client with the given job configuration, and connect to the default
