@@ -14,6 +14,15 @@ import java.io.IOException;
  */
 public interface Mapper<InputKey, InputVal, OutputKey, OutputVal> {
 
+  /**
+   * Maps a Key-Value pair to (potentially many) intermediate Key'-Value' pairs.
+   * 
+   * @param key Input key.
+   * @param value Input value.
+   * @param output Collector for output keys and values.
+   * @param reporter Progress reporter.
+   * @throws IOException
+   */
   public void map(InputKey key, InputVal value, OutputCollector<OutputKey, OutputVal> output,
       Reporter reporter) throws IOException;
 }
