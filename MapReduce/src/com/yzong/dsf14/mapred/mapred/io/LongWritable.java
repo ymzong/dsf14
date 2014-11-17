@@ -25,5 +25,4 @@ public class LongWritable implements Writable {
     return value;
   }
 
-
 }
