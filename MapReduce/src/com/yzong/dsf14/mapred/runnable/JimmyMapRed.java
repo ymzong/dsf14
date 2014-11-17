@@ -55,7 +55,7 @@ public class JimmyMapRed {
     Option destroyClusterOp = OptionBuilder.create("DestroyCluster");
     optionGroup.addOption(destroyClusterOp);
 
-    OptionBuilder.hasArgs());
+    OptionBuilder.hasArgs();
     OptionBuilder.withDescription("lists all jobs in current cluster");
     Option listJobsOp = OptionBuilder.create("ListJobs");
     optionGroup.addOption(listJobsOp);
@@ -71,7 +71,7 @@ public class JimmyMapRed {
     OptionBuilder.withDescription("runs certain MapReduce job in jar");
     Option runJobOp = OptionBuilder.create("RunJob");
     optionGroup.addOption(runJobOp);
-    
+
     return optionGroup;
   }
 
@@ -95,9 +95,19 @@ public class JimmyMapRed {
     }
     /* Parsing CLI arguments and Config file. */
     ClusterConfig CC = new ConfigManager(cmd.getOptionValue("Conf")).parseConfig();
+    /* Case One: Start up new cluster. */
     if (cmd.hasOption("StartMaster")) {
-      
+      /* Spin up DFS Master. */
+      // TODO: Start DFS server -- *passive mode*
+      /* Spin up MapRed cluster Master node on top of DFS. */
+      MapRedMasterServer mrMasterServer = new MapRedMasterServer(CC);
+      mrMasterServer.start();
     } else if (cmd.hasOption("StartWorker")) {
+      /* Spin up DFS Worker. */
+      // TODO: Start DFS server -- *passive mode*
+      /* Spin up MapRed cluster Worker node on top of DFS. */
+      MapRedWorkerServer mrWorkerServer = new MapRedWorkerServer(CC);
+      mrWorkerServer.start();
     } else if (cmd.hasOption("DestroyCluster")) {
     } else if (cmd.hasOption("ListJobs")) {
     } else if (cmd.hasOption("PollJob")) {
