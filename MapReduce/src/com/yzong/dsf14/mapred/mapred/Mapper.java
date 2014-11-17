@@ -1,5 +1,7 @@
 package com.yzong.dsf14.mapred.mapred;
 
+import java.io.IOException;
+
 /**
  * Interface for a Mapper class that contains a <tt>map</tt> function, which a user will implement.
  * 
@@ -13,5 +15,5 @@ package com.yzong.dsf14.mapred.mapred;
 public interface Mapper<InputKey, InputVal, OutputKey, OutputVal> {
 
   public void map(InputKey key, InputVal value, OutputCollector<OutputKey, OutputVal> output,
-      Reporter reporter);
+      Reporter reporter) throws IOException;
 }
