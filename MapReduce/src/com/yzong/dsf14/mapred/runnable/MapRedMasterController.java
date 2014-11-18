@@ -109,8 +109,7 @@ public class MapRedMasterController implements Runnable {
         int idx = -1;
         if ((idx = CS.getDfs().LookupTable.get(worker).indexOf(new ShardInfo(fileName, i, ""))) != -1) {
           outPkg =
-              new MapRedMessage("DFS/GET",
-                  CS.getDfs().LookupTable.get(worker).get(idx).RemotePath);
+              new MapRedMessage("DFS/GET", CS.getDfs().LookupTable.get(worker).get(idx).RemotePath);
           try {
             MapRedMessage response = DfsSendRequest(worker, outPkg);
             if (!response.Command.equals("OK")) {
@@ -186,13 +185,13 @@ public class MapRedMasterController implements Runnable {
       FileUtils.writeByteArrayToFile(new File(tmpFileBuffer), fileContent);
     } catch (IOException e) {
       System.err.println("Unable to access local working directory...");
-      return null;
+      return new MapRedMessage("XXX", "Unable to access local working directory...");
     }
     final int lineLimit = CC.getDfs().ShardSize;
     if (CS.getDfs().FileList.containsKey(fileName)) {
       System.out.printf("Error -- File `%s` already exists!", fileName);
       FileUtils.deleteQuietly(new File(tmpFileBuffer));
-      return null;
+      return new MapRedMessage("XXX", String.format("Error -- File `%s` already exists!", fileName));
     }
     try {
       int lineNum = countLines(tmpFileBuffer);
@@ -281,8 +280,8 @@ public class MapRedMasterController implements Runnable {
    * @throws UnknownHostException
    * @throws ClassNotFoundException
    */
-  private MapRedMessage DfsSendRequest(String w, MapRedMessage outPkg)
-      throws UnknownHostException, IOException, ClassNotFoundException {
+  private MapRedMessage DfsSendRequest(String w, MapRedMessage outPkg) throws UnknownHostException,
+      IOException, ClassNotFoundException {
     Socket outSocket =
         new Socket(CC.getDfs().Wkrs.get(w).HostName, CC.getDfs().Wkrs.get(w).PortNum);
     ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
@@ -355,6 +354,9 @@ public class MapRedMasterController implements Runnable {
         outPkg = new MapRedMessage("XXX", String.format("Command %s not recognized!", inCommand));
       }
       /* Feed the output back to the OutputObjectStream. */
+      if (outPkg == null) {
+        outPkg = new MapRedMessage("XXX", "Unknown exception!");
+      }
       OutStream.writeObject(outPkg);
     }
     /* Catches any exception, logs to stdio, and continue. */

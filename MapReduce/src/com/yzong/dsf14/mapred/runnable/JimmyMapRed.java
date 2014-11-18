@@ -57,12 +57,12 @@ public class JimmyMapRed {
     Option startWorkerOp = OptionBuilder.create("StartWorker");
     optionGroup.addOption(startWorkerOp);
 
-    OptionBuilder.hasArgs();
+    OptionBuilder.hasArgs(0);
     OptionBuilder.withDescription("destroys currently running MapReduce & DFS cluster");
     Option destroyClusterOp = OptionBuilder.create("DestroyCluster");
     optionGroup.addOption(destroyClusterOp);
 
-    OptionBuilder.hasArgs();
+    OptionBuilder.hasArgs(0);
     OptionBuilder.withDescription("lists all jobs in current cluster");
     Option listJobsOp = OptionBuilder.create("ListJobs");
     optionGroup.addOption(listJobsOp);
@@ -115,7 +115,8 @@ public class JimmyMapRed {
     /* Parsing CLI arguments and Config file. */
     String confPath = cmd.getOptionValue("Conf");
     if (confPath == null) {
-      System.out.println("Path to config file not found -- using default value: `conf/cluster.xml`...");
+      System.out
+          .println("Path to config file not found -- using default value: `conf/cluster.xml`...");
       confPath = "conf/cluster.xml";
     }
     ClusterConfig CC = new ConfigManager(confPath).verifyConfig(false);
@@ -147,7 +148,9 @@ public class JimmyMapRed {
           System.out.printf("Error while terminating cluster -- %s\n", (String) response.Body);
         }
       } catch (Exception e) {
-        System.out.println("Error connecting to cluster... (Has cluster started?)");
+        System.out.printf(
+            "Error connecting to cluster... (Has cluster started?)\nException -- %s\n",
+            e.getMessage());
       }
     }
     /* Case Four: List all jobs in cluster. */
@@ -165,7 +168,9 @@ public class JimmyMapRed {
           System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
         }
       } catch (Exception e) {
-        System.out.println("Error connecting to cluster... (Has cluster started?)");
+        System.out.printf(
+            "Error connecting to cluster... (Has cluster started?)\nException -- %s\n",
+            e.getMessage());
       }
     }
     /* Case Five: Poll the status of ongoing job. */
@@ -183,7 +188,9 @@ public class JimmyMapRed {
           System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
         }
       } catch (Exception e) {
-        System.out.println("Error connecting to cluster... (Has cluster started?)");
+        System.out.printf(
+            "Error connecting to cluster... (Has cluster started?)\nException -- %s\n",
+            e.getMessage());
       }
     }
     /* Case Six: Run MapReduce job on cluster. */
@@ -203,12 +210,15 @@ public class JimmyMapRed {
         MapRedMessage response = (MapRedMessage) in.readObject();
         outSocket.close();
         if (((String) response.Command).equals("OK")) {
-          System.out.printf("File `%s` successfully loaded to `%s`\n", localPath, remotePath);
+          System.out.printf("File `%s` successfully loaded on JimmyDFS as `%s`.\n", localPath,
+              remotePath);
         } else {
           System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
         }
       } catch (Exception e) {
-        System.out.println("Error connecting to cluster... (Has cluster started?)");
+        System.out.printf(
+            "Error connecting to cluster... (Has cluster started?)\nException -- %s\n",
+            e.getMessage());
       }
     }
     /* Case Eight: Pull file on DFS to local. */
@@ -228,7 +238,9 @@ public class JimmyMapRed {
           System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
         }
       } catch (Exception e) {
-        System.out.println("Error connecting to cluster... (Has cluster started?)");
+        System.out.printf(
+            "Error connecting to cluster... (Has cluster started?)\nException -- %s\n",
+            e.getMessage());
       }
     }
     /* Case Nine: Unrecognized command. */

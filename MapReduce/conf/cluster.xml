@@ -5,7 +5,7 @@
 <DFSShardSize>1000</DFSShardSize>
 <DFSReplication>9</DFSReplication>
 <Master>
-<host>ghc35.ghc.andrew.cmu.edu</host>
+<host>localhost</host>
 <fsport>9190</fsport>
 <mrport>9191</mrport>
 </Master>
