@@ -184,7 +184,7 @@ public class DfsController {
   }
 
   /**
-   * Obtains a local copy of a file in DFS.
+   * Dump a local copy of a file in DFS.
    * 
    * @param fileName Filename of the file in DFS.
    * @param localPath Target path to store the file in local file system.

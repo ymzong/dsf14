@@ -3,7 +3,7 @@ package com.yzong.dsf14.mapred.dfs;
 import java.io.Serializable;
 
 /**
- * Communication package between DFS nodes (Master/Worker).
+ * Communication package <i>between</i> DFS nodes (Master/Worker).
  * 
  * @author Jimmy Zong <yzong@cmu.edu>
  *
