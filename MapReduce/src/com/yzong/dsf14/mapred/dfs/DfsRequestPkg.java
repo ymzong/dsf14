@@ -9,6 +9,8 @@ import java.io.Serializable;
  *
  */
 public class DfsRequestPkg implements Serializable {
+
+  private static final long serialVersionUID = -2854992595078329774L;
   public String Command;
   public Object Body;
 

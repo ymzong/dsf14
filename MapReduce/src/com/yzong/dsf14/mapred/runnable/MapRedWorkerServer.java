@@ -3,6 +3,9 @@
  */
 package com.yzong.dsf14.mapred.runnable;
 
+import java.net.ServerSocket;
+
+import com.yzong.dsf14.mapred.framework.MapRedWorkerStatus;
 import com.yzong.dsf14.mapred.util.ClusterConfig;
 
 /**
@@ -12,14 +15,19 @@ import com.yzong.dsf14.mapred.util.ClusterConfig;
  *
  */
 public class MapRedWorkerServer {
+  
+  private ServerSocket serverSocket;
+  private ClusterConfig CC;
+  private MapRedWorkerStatus WS;
 
-  public MapRedWorkerServer(ClusterConfig cC) {
-    // TODO Auto-generated constructor stub
+  public MapRedWorkerServer(ClusterConfig cc) {
+    CC = cc;
+    WS = new MapRedWorkerStatus(); // Initiate new worker status.
   }
 
   public void start() {
     // TODO Auto-generated method stub
-    
+
   }
 
 }

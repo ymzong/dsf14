@@ -4,16 +4,17 @@ import com.yzong.dsf14.mapred.dfs.DfsConfig;
 import com.yzong.dsf14.mapred.framework.MapRedConfig;
 
 /**
- * A wrapper object for DFS- and MapReduce-status objects.
- *  
+ * A wrapper object for DFS and MapReduce configuration objects. It includes all *hard* states of
+ * the instances, like host names and port numbers.
+ * 
  * @author Jimmy Zong <yzong@cmu.edu>
  *
  */
 public class ClusterConfig {
-  
+
   private DfsConfig dfs;
   private MapRedConfig mr;
-  
+
   public ClusterConfig(DfsConfig DC, MapRedConfig MC) {
     dfs = DC;
     mr = MC;
@@ -46,5 +47,5 @@ public class ClusterConfig {
   public void setMr(MapRedConfig mr) {
     this.mr = mr;
   }
-  
+
 }

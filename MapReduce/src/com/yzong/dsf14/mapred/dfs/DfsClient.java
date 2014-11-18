@@ -1,14 +1,11 @@
-/**
- * 
- */
 package com.yzong.dsf14.mapred.dfs;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
+
+import org.apache.commons.io.FileUtils;
 
 /**
  * Client object with methods to interact with the DFS.
@@ -50,6 +47,37 @@ public class DfsClient {
   }
 
   /**
+   * Request master to add a local copy of a file into DFS.
+   * 
+   * @param localPath Local path of the file to be stored in DFS.
+   * @param fileName Filename of the file in DFS.
+   * @return <tt>true</tt> iff the operation succeeds.
+   */
+  public boolean putFile(String localPath, String fileName) {
+    try {
+      Socket clientSocket = new Socket(MasterHost, MasterPort);
+      ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+      ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+      DfsRequestPkg outPkg =
+          new DfsRequestPkg("PUT", new Object[] {fileName,
+              FileUtils.readFileToByteArray(new File(localPath))});
+      out.writeObject(outPkg);
+      DfsRequestPkg inPkg = (DfsRequestPkg) in.readObject();
+      clientSocket.close();
+      if (inPkg.Command.equals("OK")) {
+        System.out.printf("File `%s` dumped at `%s` successfully!\n", fileName, localPath);
+        return true;
+      } else {
+        System.out.printf("Error while dumping `%s` -- %s", fileName, (String) inPkg.Body);
+        return false;
+      }
+    } catch (Exception e) {
+      System.out.printf("Exception while dumping `%s` -- %s", fileName, e.getMessage());
+      return false;
+    }
+  }
+
+  /**
    * Request master to dump a local copy of a file in DFS to some path.
    * 
    * @param fileName Filename of the file in DFS.
@@ -82,5 +110,4 @@ public class DfsClient {
       return false;
     }
   }
-
 }

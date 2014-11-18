@@ -4,6 +4,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import com.yzong.dsf14.mapred.util.ClusterConfig;
+import com.yzong.dsf14.mapred.util.ClusterStatus;
+
 /**
  * I/O Handler for MapRed Worker server. Take in an object from <tt>ObjectInputStream</tt>, then
  * return a response to <tt>ObjectOutputStream</tt>.
@@ -16,7 +19,8 @@ public class MapRedWorkerController implements Runnable {
   private ObjectInputStream InStream;
   private ObjectOutputStream OutStream;
 
-  public MapRedWorkerController(ObjectInputStream in, ObjectOutputStream out) {
+  public MapRedWorkerController(ObjectInputStream in,
+      ObjectOutputStream out) {
     InStream = in;
     OutStream = out;
   }

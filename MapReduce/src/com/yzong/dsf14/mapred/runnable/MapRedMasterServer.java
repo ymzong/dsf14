@@ -6,10 +6,13 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import com.yzong.dsf14.mapred.dfs.DfsStatus;
+import com.yzong.dsf14.mapred.framework.MapRedStatus;
 import com.yzong.dsf14.mapred.util.ClusterConfig;
+import com.yzong.dsf14.mapred.util.ClusterStatus;
 
 /**
- * Runnable object for server instance of MapReduce, handling Master socket.
+ * Runnable object for server instance of MapReduce and underlying DFS, handling Master socket.
  * 
  * @author Jimmy Zong <yzong@cmu.edu>
  *
@@ -17,19 +20,26 @@ import com.yzong.dsf14.mapred.util.ClusterConfig;
 public class MapRedMasterServer {
 
   private ServerSocket serverSocket;
-  private ClusterConfig CConf;
+  private ClusterConfig CC;
+  private ClusterStatus MS;
 
-  public MapRedMasterServer(ClusterConfig cconf) {
-    CConf = cconf;
+  /**
+   * Initializes a MapRedMaster with initial status.
+   * 
+   * @param cc Cluster Configuration as parsed from config file.
+   */
+  public MapRedMasterServer(ClusterConfig cc) {
+    CC = cc;
+    MS = new ClusterStatus(new DfsStatus(), new MapRedStatus()); // Initiate new cluster status.
   }
 
   public void start() {
     try {
-      serverSocket = new ServerSocket(CConf.getMr().MasterPort);
+      serverSocket = new ServerSocket(CC.getMr().MasterPort);
       while (true) {
         Socket socket = serverSocket.accept();
         MapRedMasterController masterController =
-            new MapRedMasterController(new ObjectInputStream(socket.getInputStream()),
+            new MapRedMasterController(CC, MS, new ObjectInputStream(socket.getInputStream()),
                 new ObjectOutputStream(socket.getOutputStream()));
         masterController.run(); // Spins up a thread to handle the request.
       }

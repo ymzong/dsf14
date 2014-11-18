@@ -97,18 +97,15 @@ public class JimmyMapRed {
     ClusterConfig CC = new ConfigManager(cmd.getOptionValue("Conf")).parseConfig();
     /* Case One: Start up new cluster. */
     if (cmd.hasOption("StartMaster")) {
-      /* Spin up DFS Master. */
-      // TODO: Start DFS server -- *passive mode*
-      /* Spin up MapRed cluster Master node on top of DFS. */
+      /* Spin up MapRed/DFS cluster Master node. */
       MapRedMasterServer mrMasterServer = new MapRedMasterServer(CC);
       mrMasterServer.start();
     } else if (cmd.hasOption("StartWorker")) {
-      /* Spin up DFS Worker. */
-      // TODO: Start DFS server -- *passive mode*
-      /* Spin up MapRed cluster Worker node on top of DFS. */
+      /* Spin up MapRed/DFS cluster Worker node. */
       MapRedWorkerServer mrWorkerServer = new MapRedWorkerServer(CC);
       mrWorkerServer.start();
     } else if (cmd.hasOption("DestroyCluster")) {
+      /* Sends `destroy` message to MapReduce Master. */
     } else if (cmd.hasOption("ListJobs")) {
     } else if (cmd.hasOption("PollJob")) {
     } else if (cmd.hasOption("RunJob")) {

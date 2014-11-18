@@ -10,7 +10,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
 import com.yzong.dsf14.mapred.dfs.DfsConfig;
-import com.yzong.dsf14.mapred.dfs.DfsWorkerInfo;
+import com.yzong.dsf14.mapred.dfs.DfsWorkerConfig;
 import com.yzong.dsf14.mapred.framework.MapRedConfig;
 import com.yzong.dsf14.mapred.framework.MapRedWorkerInfo;
 
@@ -86,9 +86,9 @@ public class ConfigManager {
       int ShardSize = Integer.parseInt((String) config.getProperty("DFSShardSize"));
       int Replication = Integer.parseInt((String) config.getProperty("DFSReplication"));
       List<HierarchicalConfiguration> Workers = config.configurationsAt("Workers.Worker");
-      HashMap<String, DfsWorkerInfo> WorkerInfo = new HashMap<String, DfsWorkerInfo>();
+      HashMap<String, DfsWorkerConfig> WorkerInfo = new HashMap<String, DfsWorkerConfig>();
       for (HierarchicalConfiguration w : Workers) {
-        DfsWorkerInfo worker = new DfsWorkerInfo(w.getString("host"), w.getInt("fsport"));
+        DfsWorkerConfig worker = new DfsWorkerConfig(w.getString("host"), w.getInt("fsport"));
         WorkerInfo.put(w.getString("name"), worker);
       }
       /* Create ClusterConfig object and return to CLI. */
