@@ -46,7 +46,7 @@ public class JimmyMapRed {
   private static OptionGroup buildOpsGroup() {
     OptionGroup optionGroup = new OptionGroup();
 
-    OptionBuilder.hasArgs();
+    OptionBuilder.hasArgs(0);
     OptionBuilder.withDescription("starts MapReduce & DFS master on current node");
     Option startMasterOp = OptionBuilder.create("StartMaster");
     optionGroup.addOption(startMasterOp);
@@ -113,10 +113,16 @@ public class JimmyMapRed {
       displayHelp(cliOptions);
     }
     /* Parsing CLI arguments and Config file. */
-    ClusterConfig CC = new ConfigManager(cmd.getOptionValue("Conf")).verifyConfig();
+    String confPath = cmd.getOptionValue("Conf");
+    if (confPath == null) {
+      System.out.println("Path to config file not found -- using default value: `conf/cluster.xml`...");
+      confPath = "conf/cluster.xml";
+    }
+    ClusterConfig CC = new ConfigManager(confPath).verifyConfig(false);
 
     /* Case One: Start up new master node. */
     if (cmd.hasOption("StartMaster")) {
+      new ConfigManager(confPath).verifyConfig(true); // Wait for worker nodes to come up.
       MapRedMasterServer mrMasterServer = new MapRedMasterServer(CC);
       mrMasterServer.start();
     }
@@ -213,7 +219,7 @@ public class JimmyMapRed {
         ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
         String remotePath = cmd.getOptionValues("PullFile")[0];
         String localPath = cmd.getOptionValues("PullFile")[1];
-        out.writeObject(new MapRedMessage("DFS/GET", new Object[] {remotePath, localPath}));
+        out.writeObject(new MapRedMessage("DFS/PULL", new Object[] {remotePath, localPath}));
         MapRedMessage response = (MapRedMessage) in.readObject();
         outSocket.close();
         if (((String) response.Command).equals("OK")) {

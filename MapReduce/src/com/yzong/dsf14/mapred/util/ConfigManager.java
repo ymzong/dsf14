@@ -14,7 +14,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
-import com.yzong.dsf14.mapred.dfs.DfsCommunicationPkg;
 import com.yzong.dsf14.mapred.dfs.DfsConfig;
 import com.yzong.dsf14.mapred.dfs.DfsWorkerConfig;
 import com.yzong.dsf14.mapred.framework.MapRedConfig;
@@ -178,8 +177,8 @@ public class ConfigManager {
                   DFSClusterConfig.Wkrs.get(w).PortNum);
           ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
           ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
-          out.writeObject(new DfsCommunicationPkg("PING", null));
-          String response = ((DfsCommunicationPkg) in.readObject()).Command;
+          out.writeObject(new MapRedMessage("PING", null));
+          String response = ((MapRedMessage) in.readObject()).Command;
           outSocket.close();
           if (response.equals("PONG")) {
             i.remove();
@@ -205,13 +204,14 @@ public class ConfigManager {
    * Wrapper function for <tt>parseDFSConfig</tt> and <tt>parseMRConfig</tt>. Returns the
    * configuration of an entire cluster.
    * 
+   * @param wait Wait for everything to come up (as master)
    * @return
    */
-  public ClusterConfig verifyConfig() {
+  public ClusterConfig verifyConfig(boolean wait) {
     if (DFSClusterConfig == null || MRClusterConfig == null) {
       return null;
     }
-    if (waitForCluster()) {
+    if (!wait || waitForCluster()) {
       return new ClusterConfig(DFSClusterConfig, MRClusterConfig);
     } else {
       return null;

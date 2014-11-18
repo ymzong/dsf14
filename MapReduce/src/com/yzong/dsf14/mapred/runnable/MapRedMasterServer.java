@@ -24,7 +24,7 @@ public class MapRedMasterServer {
   private ClusterStatus CS;
 
   /**
-   * Initializes a MapRedMaster with initial status.
+   * Initializes a MapRed Master with initial status.
    * 
    * @param cc Cluster Configuration as parsed from config file.
    */
@@ -35,7 +35,8 @@ public class MapRedMasterServer {
 
   public void start() {
     try {
-      serverSocket = new ServerSocket(CC.getMr().MasterPort);
+      serverSocket = new ServerSocket(CC.getDfs().MasterPort);
+      System.out.printf("INFO -- MapReduce Master started at localhost:%d...\n", CC.getDfs().MasterPort);
       while (true) {
         Socket socket = serverSocket.accept();
         MapRedMasterController masterController =

@@ -26,7 +26,6 @@ import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 
-import com.yzong.dsf14.mapred.dfs.DfsCommunicationPkg;
 import com.yzong.dsf14.mapred.dfs.FileProp;
 import com.yzong.dsf14.mapred.dfs.ShardInfo;
 import com.yzong.dsf14.mapred.util.ClusterConfig;
@@ -57,7 +56,6 @@ public class MapRedMasterController implements Runnable {
     InStream = in;
     OutStream = out;
   }
-
 
   /**
    * Counts the number of lines of a given file. (SO #453018)
@@ -105,16 +103,16 @@ public class MapRedMasterController implements Runnable {
     int shards = f.NumShards;
     /* Find each chunk of the file from workers. */
     for (int i = 0; i < shards; i++) {
-      DfsCommunicationPkg outPkg = null;
+      MapRedMessage outPkg = null;
       boolean succeed = false;
       for (String worker : CC.getDfs().Wkrs.keySet()) {
         int idx = -1;
         if ((idx = CS.getDfs().LookupTable.get(worker).indexOf(new ShardInfo(fileName, i, ""))) != -1) {
           outPkg =
-              new DfsCommunicationPkg("GET",
+              new MapRedMessage("DFS/GET",
                   CS.getDfs().LookupTable.get(worker).get(idx).RemotePath);
           try {
-            DfsCommunicationPkg response = DfsSendRequest(worker, outPkg);
+            MapRedMessage response = DfsSendRequest(worker, outPkg);
             if (!response.Command.equals("OK")) {
               System.out.printf("Error while loading file %s:%d from %s: %s!\n", fileName, i,
                   worker, (String) response.Body);
@@ -239,8 +237,8 @@ public class MapRedMasterController implements Runnable {
    */
   private boolean DfsPushFile(StringBuffer buffer, String fileName, int fileCounter) {
     /* Prepare package and a list of random recipients. */
-    DfsCommunicationPkg outPkg =
-        new DfsCommunicationPkg("ADD", new Object[] {buffer, fileName + "." + fileCounter});
+    MapRedMessage outPkg =
+        new MapRedMessage("DFS/ADD", new Object[] {buffer, fileName + "." + fileCounter});
     List<String> targets = new ArrayList<String>();
     List<String> workers = new ArrayList<String>(CC.getDfs().Wkrs.keySet());
     for (int i = 0; i < Math.min(CC.getDfs().Replication, workers.size()); i++) {
@@ -253,7 +251,7 @@ public class MapRedMasterController implements Runnable {
     /* Starting pushing shards to worker nodes. */
     for (String w : targets) {
       try {
-        DfsCommunicationPkg response = DfsSendRequest(w, outPkg);
+        MapRedMessage response = DfsSendRequest(w, outPkg);
         if (!response.Command.equals("OK")) {
           System.out.printf("Error while loading file: %s!\n", (String) response.Body);
         } else {
@@ -283,14 +281,14 @@ public class MapRedMasterController implements Runnable {
    * @throws UnknownHostException
    * @throws ClassNotFoundException
    */
-  private DfsCommunicationPkg DfsSendRequest(String w, DfsCommunicationPkg outPkg)
+  private MapRedMessage DfsSendRequest(String w, MapRedMessage outPkg)
       throws UnknownHostException, IOException, ClassNotFoundException {
     Socket outSocket =
         new Socket(CC.getDfs().Wkrs.get(w).HostName, CC.getDfs().Wkrs.get(w).PortNum);
     ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
     ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
     out.writeObject(outPkg);
-    DfsCommunicationPkg response = (DfsCommunicationPkg) in.readObject();
+    MapRedMessage response = (MapRedMessage) in.readObject();
     outSocket.close();
     return response;
   }
@@ -310,8 +308,8 @@ public class MapRedMasterController implements Runnable {
             new Socket(CC.getDfs().Wkrs.get(w).HostName, CC.getDfs().Wkrs.get(w).PortNum);
         ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
-        out.writeObject(new DfsCommunicationPkg("DESTROY", null));
-        String msg = ((DfsCommunicationPkg) in.readObject()).Command;
+        out.writeObject(new MapRedMessage("DESTROY", null));
+        String msg = ((MapRedMessage) in.readObject()).Command;
         if (!msg.equals("OK")) {
           message +=
               String.format("Error occured while cleaning up %s. Please do so manually.\n", w);
@@ -335,7 +333,7 @@ public class MapRedMasterController implements Runnable {
    * Dispatches client request packages to dedicated functions, and write the response.
    */
   @Override
-  public void run() {
+  synchronized public void run() {
     try {
       MapRedMessage inPkg = (MapRedMessage) InStream.readObject();
       String inCommand = inPkg.Command;
@@ -345,8 +343,8 @@ public class MapRedMasterController implements Runnable {
       if (inCommand.equals("DFS/LOAD")) {
         outPkg = DfsLoad(inPkg);
       }
-      /* Case Two: Client wishes to grab file from DFS. */
-      else if (inCommand.equals("DFS/GET")) {
+      /* Case Two: Client wishes to pull file from DFS. */
+      else if (inCommand.equals("DFS/PULL")) {
         outPkg = DfsGet(inPkg);
       }
       /* Case Three: Client wishes to destroy cluster. */
