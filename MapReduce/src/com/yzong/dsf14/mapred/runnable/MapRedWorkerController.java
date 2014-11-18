@@ -85,11 +85,12 @@ public class MapRedWorkerController implements Runnable {
         OutStream.writeObject(new MapRedMessage("OK", null));
         System.out.println("INFO -- Cleaning up working directory...");
         FileUtils.deleteDirectory(new File(WS.WorkingDir));
+        System.exit(0);
         return;
       }
       /* Case Five: Incoming package cannot be interpreted. */
       else {
-        System.out.println("ERROR -- Incoming package cannot be interpreted!");
+        System.out.printf("ERROR -- Incoming package (`%s`) cannot be interpreted!\n", inPkg.Command);
         OutStream.writeObject(new MapRedMessage("XXX", null));
       }
     } catch (Exception e) {

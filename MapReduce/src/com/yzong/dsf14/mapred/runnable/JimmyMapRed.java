@@ -103,7 +103,7 @@ public class JimmyMapRed {
     /* Building command-line options. */
     Options cliOptions = new Options();
     cliOptions.addOptionGroup(buildOpsGroup());
-    cliOptions.addOption("Conf", true, "path name for config file");
+    cliOptions.addOption("Conf", true, "(optional) path name for config file");
     CommandLineParser cliParser = new GnuParser();
     CommandLine cmd = null;
     try {
@@ -145,7 +145,8 @@ public class JimmyMapRed {
         if (((String) response.Command).equals("OK")) {
           System.out.println("Successfully terminated cluster!");
         } else {
-          System.out.printf("Error while terminating cluster -- %s\n", (String) response.Body);
+          System.out.printf("Error while performing task...\nException -- %s\n",
+              (String) response.Body);
         }
       } catch (Exception e) {
         System.out.printf(
@@ -165,7 +166,8 @@ public class JimmyMapRed {
         if (((String) response.Command).equals("OK")) {
           // TODO: Print out jobs.
         } else {
-          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+          System.out.printf("Error while performing task...\nException -- %s\n",
+              (String) response.Body);
         }
       } catch (Exception e) {
         System.out.printf(
@@ -185,7 +187,8 @@ public class JimmyMapRed {
         if (((String) response.Command).equals("OK")) {
           // TODO: Print out job status.
         } else {
-          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+          System.out.printf("Error while performing task...\nException -- %s\n",
+              (String) response.Body);
         }
       } catch (Exception e) {
         System.out.printf(
@@ -213,7 +216,8 @@ public class JimmyMapRed {
           System.out.printf("File `%s` successfully loaded on JimmyDFS as `%s`.\n", localPath,
               remotePath);
         } else {
-          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+          System.out.printf("Error while performing task...\nException -- %s\n",
+              (String) response.Body);
         }
       } catch (Exception e) {
         System.out.printf(
@@ -235,7 +239,8 @@ public class JimmyMapRed {
         if (((String) response.Command).equals("OK")) {
           System.out.printf("File `%s` successfully pulled to `%s`\n", remotePath, localPath);
         } else {
-          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+          System.out.printf("Error while performing task...\nException -- %s\n",
+              (String) response.Body);
         }
       } catch (Exception e) {
         System.out.printf(

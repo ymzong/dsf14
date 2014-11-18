@@ -96,7 +96,8 @@ public class MapRedMasterController implements Runnable {
     String localPath = (String) (((Object[]) inPkg.Body)[1]);
     if (!CS.getDfs().FileList.containsKey(fileName)) {
       System.out.printf("Error: attempted to obtain inexistent file `%s`!\n", fileName);
-      return null;
+      return new MapRedMessage("XXX", String.format(
+          "Error: attempted to obtain inexistent file `%s`!\n", fileName));
     }
     System.out.printf("Polling shards of %s from worker nodes...\n", fileName);
     FileProp f = CS.getDfs().FileList.get(fileName);
@@ -140,7 +141,8 @@ public class MapRedMasterController implements Runnable {
         for (int j = 0; j < i; j++) {
           FileUtils.deleteQuietly(new File(CS.getDfs().WorkingDir + "/" + fileName + "." + i));
         }
-        return null;
+        return new MapRedMessage("XXX", String.format(
+            "Shard `%s:%d` not found on any worker node!\n", fileName, i));
       }
     }
     /* All `GET`s have succeeded. Stick files together. (SO #10675450) */
@@ -160,7 +162,7 @@ public class MapRedMasterController implements Runnable {
         List<String> lines = Files.readAllLines(path, charset);
         Files.write(output, lines, charset, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
       }
-      System.out.printf("Succeed outputing DFS `%s` to local `%s`!\n", fileName, localPath);
+      System.out.printf("Succeeded outputing DFS `%s` to local `%s`!\n", fileName, localPath);
       return new MapRedMessage("OK", null);
     }
     /* Exception occured while merging to output file... */
@@ -189,7 +191,7 @@ public class MapRedMasterController implements Runnable {
     }
     final int lineLimit = CC.getDfs().ShardSize;
     if (CS.getDfs().FileList.containsKey(fileName)) {
-      System.out.printf("Error -- File `%s` already exists!", fileName);
+      System.out.printf("Error -- File `%s` already exists!\n", fileName);
       FileUtils.deleteQuietly(new File(tmpFileBuffer));
       return new MapRedMessage("XXX", String.format("Error -- File `%s` already exists!", fileName));
     }
@@ -307,7 +309,7 @@ public class MapRedMasterController implements Runnable {
             new Socket(CC.getDfs().Wkrs.get(w).HostName, CC.getDfs().Wkrs.get(w).PortNum);
         ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
-        out.writeObject(new MapRedMessage("DESTROY", null));
+        out.writeObject(new MapRedMessage("ALL/DESTROY", null));
         String msg = ((MapRedMessage) in.readObject()).Command;
         if (!msg.equals("OK")) {
           message +=
@@ -349,7 +351,8 @@ public class MapRedMasterController implements Runnable {
       /* Case Three: Client wishes to destroy cluster. */
       else if (inCommand.equals("ALL/DESTROY")) {
         outPkg = AllDestroy();
-        Thread.currentThread().interrupt();
+        OutStream.writeObject(outPkg);
+        System.exit(0);
       } else {
         outPkg = new MapRedMessage("XXX", String.format("Command %s not recognized!", inCommand));
       }
