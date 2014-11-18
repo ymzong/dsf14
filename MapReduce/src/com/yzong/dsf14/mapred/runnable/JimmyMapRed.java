@@ -1,5 +1,10 @@
 package com.yzong.dsf14.mapred.runnable;
 
+import java.io.File;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -8,9 +13,11 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
+import org.apache.commons.io.FileUtils;
 
 import com.yzong.dsf14.mapred.util.ClusterConfig;
 import com.yzong.dsf14.mapred.util.ConfigManager;
+import com.yzong.dsf14.mapred.util.MapRedMessage;
 
 /**
  * Main entry point for all utilities supported by the MapReduce framework.
@@ -72,6 +79,18 @@ public class JimmyMapRed {
     Option runJobOp = OptionBuilder.create("RunJob");
     optionGroup.addOption(runJobOp);
 
+    OptionBuilder.hasArgs(2);
+    OptionBuilder.withArgName("localPath> <remotePath");
+    OptionBuilder.withDescription("loads local file onto DFS");
+    Option loadFileOp = OptionBuilder.create("LoadFile");
+    optionGroup.addOption(loadFileOp);
+
+    OptionBuilder.hasArgs(2);
+    OptionBuilder.withArgName("remotePath> <localPath");
+    OptionBuilder.withDescription("pulls DFS file onto local file system");
+    Option pullFileOp = OptionBuilder.create("PullFile");
+    optionGroup.addOption(pullFileOp);
+
     return optionGroup;
   }
 
@@ -94,22 +113,120 @@ public class JimmyMapRed {
       displayHelp(cliOptions);
     }
     /* Parsing CLI arguments and Config file. */
-    ClusterConfig CC = new ConfigManager(cmd.getOptionValue("Conf")).parseConfig();
-    /* Case One: Start up new cluster. */
+    ClusterConfig CC = new ConfigManager(cmd.getOptionValue("Conf")).verifyConfig();
+
+    /* Case One: Start up new master node. */
     if (cmd.hasOption("StartMaster")) {
-      /* Spin up MapRed/DFS cluster Master node. */
       MapRedMasterServer mrMasterServer = new MapRedMasterServer(CC);
       mrMasterServer.start();
-    } else if (cmd.hasOption("StartWorker")) {
-      /* Spin up MapRed/DFS cluster Worker node. */
-      MapRedWorkerServer mrWorkerServer = new MapRedWorkerServer(CC);
+    }
+    /* Case Two: Start up new worker node. */
+    else if (cmd.hasOption("StartWorker")) {
+      MapRedWorkerServer mrWorkerServer =
+          new MapRedWorkerServer(CC, Integer.parseInt(cmd.getOptionValues("StartWorker")[0]));
       mrWorkerServer.start();
-    } else if (cmd.hasOption("DestroyCluster")) {
-      /* Sends `destroy` message to MapReduce Master. */
-    } else if (cmd.hasOption("ListJobs")) {
-    } else if (cmd.hasOption("PollJob")) {
-    } else if (cmd.hasOption("RunJob")) {
-    } else {
+    }
+    /* Case Three: Destroy current cluster. */
+    else if (cmd.hasOption("DestroyCluster")) {
+      try {
+        Socket outSocket = new Socket(CC.getDfs().MasterHost, CC.getDfs().MasterPort);
+        ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+        out.writeObject(new MapRedMessage("ALL/DESTROY", null));
+        MapRedMessage response = (MapRedMessage) in.readObject();
+        outSocket.close();
+        if (((String) response.Command).equals("OK")) {
+          System.out.println("Successfully terminated cluster!");
+        } else {
+          System.out.printf("Error while terminating cluster -- %s\n", (String) response.Body);
+        }
+      } catch (Exception e) {
+        System.out.println("Error connecting to cluster... (Has cluster started?)");
+      }
+    }
+    /* Case Four: List all jobs in cluster. */
+    else if (cmd.hasOption("ListJobs")) {
+      try {
+        Socket outSocket = new Socket(CC.getMr().MasterHost, CC.getDfs().MasterPort);
+        ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+        out.writeObject(new MapRedMessage("LISTJOBS", null));
+        MapRedMessage response = (MapRedMessage) in.readObject();
+        outSocket.close();
+        if (((String) response.Command).equals("OK")) {
+          // TODO: Print out jobs.
+        } else {
+          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+        }
+      } catch (Exception e) {
+        System.out.println("Error connecting to cluster... (Has cluster started?)");
+      }
+    }
+    /* Case Five: Poll the status of ongoing job. */
+    else if (cmd.hasOption("PollJob")) {
+      try {
+        Socket outSocket = new Socket(CC.getDfs().MasterHost, CC.getDfs().MasterPort);
+        ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+        out.writeObject(new MapRedMessage("POLLJOB", cmd.getOptionValues("PollJob")[0]));
+        MapRedMessage response = (MapRedMessage) in.readObject();
+        outSocket.close();
+        if (((String) response.Command).equals("OK")) {
+          // TODO: Print out job status.
+        } else {
+          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+        }
+      } catch (Exception e) {
+        System.out.println("Error connecting to cluster... (Has cluster started?)");
+      }
+    }
+    /* Case Six: Run MapReduce job on cluster. */
+    else if (cmd.hasOption("RunJob")) {
+      // TODO: RunJob.
+    }
+    /* Case Seven: Load local file to DFS. */
+    else if (cmd.hasOption("LoadFile")) {
+      try {
+        Socket outSocket = new Socket(CC.getDfs().MasterHost, CC.getDfs().MasterPort);
+        ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+        String localPath = cmd.getOptionValues("LoadFile")[0];
+        String remotePath = cmd.getOptionValues("LoadFile")[1];
+        out.writeObject(new MapRedMessage("DFS/LOAD", new Object[] {remotePath,
+            FileUtils.readFileToByteArray(new File(localPath))}));
+        MapRedMessage response = (MapRedMessage) in.readObject();
+        outSocket.close();
+        if (((String) response.Command).equals("OK")) {
+          System.out.printf("File `%s` successfully loaded to `%s`\n", localPath, remotePath);
+        } else {
+          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+        }
+      } catch (Exception e) {
+        System.out.println("Error connecting to cluster... (Has cluster started?)");
+      }
+    }
+    /* Case Eight: Pull file on DFS to local. */
+    else if (cmd.hasOption("PullFile")) {
+      try {
+        Socket outSocket = new Socket(CC.getDfs().MasterHost, CC.getDfs().MasterPort);
+        ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+        String remotePath = cmd.getOptionValues("PullFile")[0];
+        String localPath = cmd.getOptionValues("PullFile")[1];
+        out.writeObject(new MapRedMessage("DFS/GET", new Object[] {remotePath, localPath}));
+        MapRedMessage response = (MapRedMessage) in.readObject();
+        outSocket.close();
+        if (((String) response.Command).equals("OK")) {
+          System.out.printf("File `%s` successfully pulled to `%s`\n", remotePath, localPath);
+        } else {
+          System.out.printf("Error while connecting with cluster -- %s\n", (String) response.Body);
+        }
+      } catch (Exception e) {
+        System.out.println("Error connecting to cluster... (Has cluster started?)");
+      }
+    }
+    /* Case Nine: Unrecognized command. */
+    else {
       displayHelp(cliOptions);
     }
   }

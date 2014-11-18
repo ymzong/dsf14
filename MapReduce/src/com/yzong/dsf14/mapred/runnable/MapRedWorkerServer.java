@@ -19,10 +19,12 @@ public class MapRedWorkerServer {
   private ServerSocket serverSocket;
   private ClusterConfig CC;
   private MapRedWorkerStatus WS;
-
-  public MapRedWorkerServer(ClusterConfig cc) {
+  private int PortNum;
+  
+  public MapRedWorkerServer(ClusterConfig cc, int portNum) {
     CC = cc;
     WS = new MapRedWorkerStatus(); // Initiate new worker status.
+    PortNum = portNum;
   }
 
   public void start() {

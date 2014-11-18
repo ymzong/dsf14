@@ -2,13 +2,19 @@ package com.yzong.dsf14.mapred.util;
 
 import java.io.Console;
 import java.io.File;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 
+import com.yzong.dsf14.mapred.dfs.DfsCommunicationPkg;
 import com.yzong.dsf14.mapred.dfs.DfsConfig;
 import com.yzong.dsf14.mapred.dfs.DfsWorkerConfig;
 import com.yzong.dsf14.mapred.framework.MapRedConfig;
@@ -27,7 +33,9 @@ public class ConfigManager {
   public MapRedConfig MRClusterConfig;
 
   public ConfigManager(String pathName) {
-    this.PathName = pathName;
+    PathName = pathName;
+    DFSClusterConfig = parseDFSConfig();
+    MRClusterConfig = parseMRConfig();
   }
 
   /**
@@ -153,15 +161,60 @@ public class ConfigManager {
   }
 
   /**
+   * Waits for all worker nodes in DFS to be ready.
+   * 
+   * @return <tt>true</tt> iff the cluster initialized successfully.
+   */
+  public boolean waitForCluster() {
+    List<String> unavailableWorker = new ArrayList<String>(DFSClusterConfig.Wkrs.keySet());
+    while (unavailableWorker.size() != 0) {
+      System.out.printf("\nWaiting for worker nodes... (%d remaining)\n", unavailableWorker.size());
+      for (Iterator<String> i = unavailableWorker.iterator(); i.hasNext();) {
+        String w = i.next();
+        Socket outSocket;
+        try {
+          outSocket =
+              new Socket(DFSClusterConfig.Wkrs.get(w).HostName,
+                  DFSClusterConfig.Wkrs.get(w).PortNum);
+          ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
+          ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
+          out.writeObject(new DfsCommunicationPkg("PING", null));
+          String response = ((DfsCommunicationPkg) in.readObject()).Command;
+          outSocket.close();
+          if (response.equals("PONG")) {
+            i.remove();
+          }
+        }
+        /* If connection error occurs, ignore and continue. */
+        catch (Exception e) {
+          System.out.printf("Warning: Worker %s:%d not reachable! Will retry in 2 seconds...\n",
+              DFSClusterConfig.Wkrs.get(w).HostName, DFSClusterConfig.Wkrs.get(w).PortNum);
+        }
+      }
+      try {
+        Thread.sleep(2000); // Waits for 2 seconds before another round.
+      } catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+    }
+    System.out.println("\nCluster initialized successfully.");
+    return true;
+  }
+
+  /**
    * Wrapper function for <tt>parseDFSConfig</tt> and <tt>parseMRConfig</tt>. Returns the
    * configuration of an entire cluster.
    * 
    * @return
    */
-  public ClusterConfig parseConfig() {
+  public ClusterConfig verifyConfig() {
     if (DFSClusterConfig == null || MRClusterConfig == null) {
       return null;
     }
-    return new ClusterConfig(DFSClusterConfig, MRClusterConfig);
+    if (waitForCluster()) {
+      return new ClusterConfig(DFSClusterConfig, MRClusterConfig);
+    } else {
+      return null;
+    }
   }
 }
