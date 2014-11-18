@@ -21,7 +21,7 @@ public class MapRedMasterServer {
 
   private ServerSocket serverSocket;
   private ClusterConfig CC;
-  private ClusterStatus MS;
+  private ClusterStatus CS;
 
   /**
    * Initializes a MapRedMaster with initial status.
@@ -30,7 +30,7 @@ public class MapRedMasterServer {
    */
   public MapRedMasterServer(ClusterConfig cc) {
     CC = cc;
-    MS = new ClusterStatus(new DfsStatus(), new MapRedStatus()); // Initiate new cluster status.
+    CS = new ClusterStatus(new DfsStatus(CC), new MapRedStatus(CC)); // Initiate new cluster status.
   }
 
   public void start() {
@@ -39,7 +39,7 @@ public class MapRedMasterServer {
       while (true) {
         Socket socket = serverSocket.accept();
         MapRedMasterController masterController =
-            new MapRedMasterController(CC, MS, new ObjectInputStream(socket.getInputStream()),
+            new MapRedMasterController(CC, CS, new ObjectInputStream(socket.getInputStream()),
                 new ObjectOutputStream(socket.getOutputStream()));
         masterController.run(); // Spins up a thread to handle the request.
       }
