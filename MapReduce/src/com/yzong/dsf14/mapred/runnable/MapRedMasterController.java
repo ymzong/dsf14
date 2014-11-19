@@ -331,6 +331,15 @@ public class MapRedMasterController implements Runnable {
   }
 
   /**
+   * Lists current MapReduce jobs (including queued ones) in the cluster.
+   * 
+   * @return Response from Master node.
+   */
+  private MapRedMessage MrListJobs() {
+    return null;
+  }
+
+  /**
    * Dispatches client request packages to dedicated functions, and write the response.
    */
   @Override
@@ -353,13 +362,19 @@ public class MapRedMasterController implements Runnable {
         outPkg = AllDestroy();
         OutStream.writeObject(outPkg);
         System.exit(0);
-      } else {
+      }
+      /* Case Four: Client wishes to see job list of the cluster. */
+      else if (inCommand.equals("MR/LISTJOBS")) {
+        outPkg = MrListJobs();
+      }
+      /* Client command unrecognized. */
+      else {
         outPkg = new MapRedMessage("XXX", String.format("Command %s not recognized!", inCommand));
       }
-      /* Feed the output back to the OutputObjectStream. */
       if (outPkg == null) {
         outPkg = new MapRedMessage("XXX", "Unknown exception!");
       }
+      /* Feed the output back to the OutputObjectStream. */
       OutStream.writeObject(outPkg);
     }
     /* Catches any exception, logs to stdio, and continue. */

@@ -160,7 +160,7 @@ public class JimmyMapRed {
         Socket outSocket = new Socket(CC.getMr().MasterHost, CC.getDfs().MasterPort);
         ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
-        out.writeObject(new MapRedMessage("LISTJOBS", null));
+        out.writeObject(new MapRedMessage("MR/LISTJOBS", null));
         MapRedMessage response = (MapRedMessage) in.readObject();
         outSocket.close();
         if (((String) response.Command).equals("OK")) {
@@ -181,7 +181,7 @@ public class JimmyMapRed {
         Socket outSocket = new Socket(CC.getDfs().MasterHost, CC.getDfs().MasterPort);
         ObjectOutputStream out = new ObjectOutputStream(outSocket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(outSocket.getInputStream());
-        out.writeObject(new MapRedMessage("POLLJOB", cmd.getOptionValues("PollJob")[0]));
+        out.writeObject(new MapRedMessage("MR/POLLJOB", cmd.getOptionValues("PollJob")[0]));
         MapRedMessage response = (MapRedMessage) in.readObject();
         outSocket.close();
         if (((String) response.Command).equals("OK")) {

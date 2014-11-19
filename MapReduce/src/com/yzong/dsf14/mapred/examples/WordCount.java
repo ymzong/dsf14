@@ -71,33 +71,17 @@ public class WordCount {
   }
 
   /**
-   * Entry point for the MapReduce job.
-   * 
-   * @param args [<tt>inputPath</tt>, <tt>outputPath</tt>] for the MapReduce job.
+   * This is where user can specify the configuration of a MapReduce job.
    */
-  public static void main(String[] args) {
-    /* Sanity check for number of arguments. */
-    if (args.length < 2) {
-      System.err.println("Please put `inputPath` and `outputPath` as first two arguments.");
-      System.exit(1);
-    }
+  public static MapRedJobConf getMapReduceConf() {
     /* Populate job configurations. */
     MapRedJobConf conf = new MapRedJobConf(WordCount.class); // New config from current class.
     conf.setMapRedJobName("jimmyswordcount"); // MapReduce job name.
     conf.setInputFormat(new SingularInputFormat(TextWritable.class)); // Input format.
-    conf.setInputPath(args[0]); // Input file path.
-    conf.setOutputPath(args[1]); // Output file path.
+    conf.setInputPath("wordcount.input"); // Input file path.
+    conf.setOutputPath("wordcount.output"); // Output file path.
     conf.setMapperClass(Map.class); // Mapper Class.
     conf.setReducerClass(Reduce.class); // Reducer Class.
-    /* Spin up the job. */
-    MapRedJobClient mrClient = new MapRedJobClient(conf); // Initiate MR client from job Config.
-    boolean success = mrClient.run(true); // Wait for job to complete
-    if (success) {
-      System.out.println("MapReduce job succeeded!");
-      System.exit(0);
-    } else {
-      System.out.println("MapReduce job failed! See error message above for details.");
-      System.exit(1);
-    }
+    return conf;
   }
 }
