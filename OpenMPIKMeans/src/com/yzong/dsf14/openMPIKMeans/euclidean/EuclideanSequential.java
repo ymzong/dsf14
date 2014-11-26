@@ -18,6 +18,8 @@ import java.util.Set;
 public class EuclideanSequential {
 
   /**
+   * Main function for sequential K-Means for 2D points.
+   * 
    * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
    */
   public static void main(String[] args) {
