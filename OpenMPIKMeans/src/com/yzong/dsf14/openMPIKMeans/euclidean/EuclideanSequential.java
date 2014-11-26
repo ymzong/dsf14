@@ -3,6 +3,7 @@ package com.yzong.dsf14.openMPIKMeans.euclidean;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,9 @@ public class EuclideanSequential {
       K = Integer.parseInt(args[1]);
       Epsilon = Double.parseDouble(args[2]);
     } catch (Exception e) {
-      System.out.printf("Usage: java EuclideanSequential <InputFile> <#Clusters> <Threshold>");
+      System.out.printf("Usage: java com.yzong.dsf14.openMPIKMeans.euclidean.EuclideanSequential ");
+      System.out.printf("<InputFile> <#Clusters> <Threshold>\n");
+      System.exit(1);
     }
 
     /* Load dataset from input file. */
@@ -139,8 +142,31 @@ public class EuclideanSequential {
       MXold = MX.clone();
       MYold = MY.clone();
     }
-    for (int cluster = 0; cluster < K; cluster++) {
-      System.out.printf("%f, %f\n", MX[cluster], MY[cluster]);
+
+    /* Output result to user */
+    try {
+      String OutputFile = InputFile + ".out";
+      System.out.printf("Writing clustering result to `%s`...", OutputFile);
+      PrintWriter writer = new PrintWriter(OutputFile, "UTF-8");
+      writer.println("Following are the cluster centers:");
+      for (int cluster = 0; cluster < K; cluster++) {
+        writer.printf("Cluster %d: %f, %f\n", cluster, MX[cluster], MY[cluster]);
+      }
+      writer.println("Following are the cluster association for each element:");
+      for (int elem = 0; elem < N; elem++) {
+        for (int cluster = 0; cluster < K; cluster++) {
+          if (B[cluster][elem]) {
+            writer.printf("%d\n", cluster);
+          }
+        }
+      }
+      writer.println("--- End of Output ---");
+      writer.flush();
+      writer.close();
+      System.out.printf("Done!\n");
+    } catch (IOException e) {
+      System.out.printf("\nFailed to write to output file -- %s\n", e.getMessage());
+      System.exit(1);
     }
   }
 }
