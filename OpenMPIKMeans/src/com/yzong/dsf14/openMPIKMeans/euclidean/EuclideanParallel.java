@@ -58,6 +58,7 @@ public class EuclideanParallel {
       System.out.printf("Exception while reading input file -- %s\n", e.getMessage());
       System.exit(1);
     }
+    /* Initialize global data structures. */
     int N = xList.size();
     double X[] = new double[N];
     double Y[] = new double[N];
@@ -70,7 +71,8 @@ public class EuclideanParallel {
       Y[i] = xList.get(i);
     }
     System.out.printf("Successfully loaded %d data points!\n", xList.size());
-    // Rule out trivial case.
+    
+    /* Rule out trivial case. */
     if (K > N) {
       System.out.println("Number of clusters greater than data size!");
       System.out.println("Each cluster consists of one data entry; remaining clusters empty.");
@@ -156,6 +158,8 @@ public class EuclideanParallel {
           }
           MX[cluster] = XTotal / elemCount;
           MY[cluster] = YTotal / elemCount;
+          MXold = new double[K];
+          MYold = new double[K];
         }
       }
 

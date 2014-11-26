@@ -85,48 +85,35 @@ public class EuclideanSequential {
     }
 
     /* Start K-Means iterations. */
-    boolean B[][] = new boolean[K][N]; // True iff Element n is associated with Center k
-    double D[][] = new double[K][N]; // Distance between Element n and Center k
+    int numD[] = new int[K]; // Number of element associated with each center
+    int assoc[] = new int[N]; // Center association of each element
     while (true) {
-      /* Calculate Euclidean distances. */
-      for (int cluster = 0; cluster < K; cluster++) {
-        // Parallelizable
-        for (int elem = 0; elem < N; elem++) {
-          D[cluster][elem] =
-              Math.sqrt(Math.pow(X[elem] - MXold[cluster], 2)
-                  + Math.pow(Y[elem] - MYold[cluster], 2));
-        }
-      }
-      /* Re-associate elements with centers. */
-      // Parallelizable
+      numD = new int[K];
+      assoc = new int[N];
+      double XTotal[] = new double[K];
+      double YTotal[] = new double[K];
+      /* For each element, calculate Euclidean distances from it to all centers to re-associate it. */
       for (int elem = 0; elem < N; elem++) {
         double minDist = Double.MAX_VALUE;
         int minIndex = -1;
         for (int cluster = 0; cluster < K; cluster++) {
-          if (D[cluster][elem] < minDist) {
-            minDist = D[cluster][elem];
+          double d =
+              Math.sqrt(Math.pow(X[elem] - MXold[cluster], 2)
+                  + Math.pow(Y[elem] - MYold[cluster], 2));
+          if (d < minDist) {
+            minDist = d;
             minIndex = cluster;
           }
         }
-        for (int cluster = 0; cluster < K; cluster++) {
-          B[cluster][elem] = (cluster == minIndex);
-        }
+        numD[minIndex]++;
+        assoc[elem] = minIndex;
+        XTotal[minIndex] += X[elem];
+        YTotal[minIndex] += Y[elem];
       }
       /* Re-calculate center coordinates. */
       for (int cluster = 0; cluster < K; cluster++) {
-        // Parallelizable
-        int elemCount = 0;
-        double XTotal = 0;
-        double YTotal = 0;
-        for (int elem = 0; elem < N; elem++) {
-          if (B[cluster][elem]) {
-            elemCount++;
-            XTotal += X[elem];
-            YTotal += Y[elem];
-          }
-        }
-        MX[cluster] = XTotal / elemCount;
-        MY[cluster] = YTotal / elemCount;
+        MX[cluster] = XTotal[cluster] / numD[cluster];
+        MY[cluster] = YTotal[cluster] / numD[cluster];
       }
       /* Check if centers converge. */
       boolean finish = true;
@@ -156,11 +143,7 @@ public class EuclideanSequential {
       }
       writer.println("Following are the cluster association for each element:");
       for (int elem = 0; elem < N; elem++) {
-        for (int cluster = 0; cluster < K; cluster++) {
-          if (B[cluster][elem]) {
-            writer.printf("%d\n", cluster);
-          }
-        }
+        writer.printf("%d\n", assoc[elem]);
       }
       writer.println("--- End of Output ---");
       writer.flush();
