@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import mpi.MPI;
+import mpi.MPIException;
 import mpi.Status;
 
 /**
@@ -51,8 +52,9 @@ public class EuclideanParallel {
    * Main function for parallel K-Means for 2D points.
    * 
    * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
+   * @throws MPIException MPI-related exceptions during execution.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws MPIException {
     MPI.Init(args);
     EuclideanParallel ep = new EuclideanParallel();
     ep.run(args);
@@ -60,7 +62,13 @@ public class EuclideanParallel {
     return;
   }
 
-  public void run(String[] args) {
+  /**
+   * Runs K-Means parallel algorithm.
+   * 
+   * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
+   * @throws MPIException MPI-related exceptions during execution.
+   */
+  public void run(String[] args) throws MPIException {
     /* All: Load MPI-related constants. */
     MyRank = MPI.COMM_WORLD.Rank();
     UnivSize = MPI.COMM_WORLD.Size();
@@ -69,13 +77,16 @@ public class EuclideanParallel {
         System.out.println("Only one MPI instance found! Use sequential version instead.");
       }
       MPI.Finalize();
-      System.exit(1);
+      System.exit(0);
+    }
+    if (MyRank == MASTER_ID) {
+      System.out.printf("OpenMPI Session Started! Universe Size: %d\n", UnivSize);
     }
     /* All: Load input parameters and data from user. */
     extractInput(args);
     int chunkSize = (int) Math.ceil(((double) N) / (UnivSize - 1));
-    StartIdx = chunkSize * MyRank;
-    EndIdx = Math.min(chunkSize * MyRank + chunkSize, N);
+    StartIdx = chunkSize * (MyRank - 1);
+    EndIdx = Math.min(chunkSize * MyRank, N);
 
     /* All: Rule out trivial case. */
     if (K > N) {
@@ -95,6 +106,7 @@ public class EuclideanParallel {
     /* Master: Pick K random points as initial ctrs. */
     if (MyRank == MASTER_ID) {
       initCtrs();
+      System.out.println("Initialized centers. Starting iterations...");
     }
 
     /* All: Start K-Means iterations. */
@@ -129,14 +141,14 @@ public class EuclideanParallel {
           YTotal[minIndex] += Y[elem];
         }
         /* Send result to Master */
-        MPI.COMM_WORLD.Send(numD, 0, K, MPI.INT, MASTER_ID, NUMD_PKG);
-        MPI.COMM_WORLD.Send(assoc, StartIdx, EndIdx - StartIdx, MPI.INT, MASTER_ID, ASSOC_PKG);
-        MPI.COMM_WORLD.Send(XTotal, 0, K, MPI.DOUBLE, MASTER_ID, XTOTAL_PKG);
-        MPI.COMM_WORLD.Send(YTotal, 0, K, MPI.DOUBLE, MASTER_ID, YTOTAL_PKG);
+        MPI.COMM_WORLD.Issend(numD, 0, K, MPI.INT, MASTER_ID, NUMD_PKG);
+        MPI.COMM_WORLD.Issend(assoc, StartIdx, EndIdx - StartIdx, MPI.INT, MASTER_ID, ASSOC_PKG);
+        MPI.COMM_WORLD.Issend(XTotal, 0, K, MPI.DOUBLE, MASTER_ID, XTOTAL_PKG);
+        MPI.COMM_WORLD.Issend(YTotal, 0, K, MPI.DOUBLE, MASTER_ID, YTOTAL_PKG);
         /* Block till Master informs convergence or not. */
-        boolean convg = false;
+        boolean convg[] = new boolean[1];
         MPI.COMM_WORLD.Recv(convg, 0, 1, MPI.BOOLEAN, MASTER_ID, CONT_PKG);
-        if (convg) {
+        if (convg[0]) {
           break; // If Master finds convergence, Worker instance breaks out of while loop.
         }
       }
@@ -161,11 +173,11 @@ public class EuclideanParallel {
           }
           // Stick up associations in assoc sub-arrays.
           Status s =
-              MPI.COMM_WORLD.Recv(intBuffer, 0, chunkSize, MPI.INT, MPI.ANY_SOURCE, NUMD_PKG);
-          int start = chunkSize * s.source;
-          int end = Math.min(chunkSize * s.source + chunkSize, N);
+              MPI.COMM_WORLD.Recv(intBuffer, 0, chunkSize, MPI.INT, MPI.ANY_SOURCE, ASSOC_PKG);
+          int start = chunkSize * (s.source - 1);
+          int end = Math.min(chunkSize * s.source, N);
           for (int elem = start; elem < end; elem++) {
-            numD[elem] = intBuffer[elem - start];
+            assoc[elem] = intBuffer[elem - start];
           }
         }
         /* Re-calculate center coordinates. */
@@ -182,19 +194,20 @@ public class EuclideanParallel {
           }
         }
         /* Check if centers converge. */
-        boolean converge = true;
+        boolean converge[] = new boolean[1];
+        converge[0] = true;
         for (int i = 0; i < K; i++) {
           if (Math.sqrt(Math.pow(MX[i] - MXold[i], 2) + Math.pow(MY[i] - MYold[i], 2)) > Epsilon) {
-            converge = false;
+            converge[0] = false;
             break;
           }
         }
         /* Tell children to about convergence. */
         for (int rank = 1; rank < UnivSize; rank++) {
-          MPI.COMM_WORLD.Send(converge, 0, 1, MPI.BOOLEAN, rank, CONT_PKG);
+          MPI.COMM_WORLD.Issend(converge, 0, 1, MPI.BOOLEAN, rank, CONT_PKG);
         }
         /* If all centers converge, complete! */
-        if (converge) {
+        if (converge[0]) {
           break;
         }
         /* Otherwise, update center coordinates. */
@@ -241,8 +254,10 @@ public class EuclideanParallel {
 
   /**
    * Broadcasts current value of MXold and MYold from master. (Used by All)
+   * 
+   * @throws MPIException MPI-related exceptions during execution.
    */
-  private void broadcastMXYold() {
+  private void broadcastMXYold() throws MPIException {
     if (MyRank == MASTER_ID) {
       for (int rank = 1; rank < UnivSize; rank++) {
         MPI.COMM_WORLD.Send(MXold, 0, K, MPI.DOUBLE, rank, CLUSTERX_PKG);
@@ -260,8 +275,9 @@ public class EuclideanParallel {
    * Loads input parameters and data from user. (Used by All)
    * 
    * @param args Command-line arguments from user
+   * @throws MPIException MPI-related exceptions during execution.
    */
-  private void extractInput(String[] args) {
+  private void extractInput(String[] args) throws MPIException {
     /* All: Parse command-line arguments. */
     try {
       InputFile = args[0];
@@ -270,11 +286,10 @@ public class EuclideanParallel {
     } catch (Exception e) {
       /* If parameters invalid, Master prints out message. All quit. */
       if (MyRank == MASTER_ID) {
-        System.out.printf("Usage: java com.yzong.dsf14.openMPIKMeans.euclidean");
-        System.out.printf(".EuclideanSequential <InputFile> <#Clusters> <Threshold>\n");
+        System.out.printf("Arguments: <InputFile> <#Clusters> <Threshold>\n");
       }
       MPI.Finalize();
-      System.exit(1);
+      System.exit(0);
     }
 
     /* All: Load dataset from input file. */
@@ -295,7 +310,7 @@ public class EuclideanParallel {
         System.out.printf("Exception while reading input file -- %s\n", e.getMessage());
       }
       MPI.Finalize();
-      System.exit(1);
+      System.exit(0);
     }
     N = xList.size();
     X = new double[N];
