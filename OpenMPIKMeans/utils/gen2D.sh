@@ -17,5 +17,5 @@ fi
 echo ***GENERATING $b INPUT POINTS EACH IN $k CLUSTERS***
 mkdir -p ../input
 python ./randClusterGen/gen2D.py -c $k -p $b -o "../input/rand2D.csv"
-echo Dataset written to ../input/cluster.csv!
+echo Dataset written to ../input/rand2D.csv!
 

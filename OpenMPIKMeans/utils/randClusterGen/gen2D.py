@@ -37,7 +37,7 @@ def handleArgs(args):
     numClusters = -1
     numPoints = -1
     output = None
-    maxValue = 10
+    maxValue = 100
 
     try:
         optlist, args = getopt.getopt(args[1:], 'c:p:v:o:')
