@@ -58,7 +58,7 @@ public class EuclideanSequential {
     double Y[] = new double[N];
     for (int i = 0; i < N; i++) {
       X[i] = xList.get(i);
-      Y[i] = xList.get(i);
+      Y[i] = yList.get(i);
     }
     System.out.printf("Successfully loaded %d data points!\n", xList.size());
 
@@ -80,13 +80,13 @@ public class EuclideanSequential {
     int counter = 0;
     for (int s : subsetIdx) {
       MXold[counter] = X[s];
-      MYold[counter] = X[s];
+      MYold[counter] = Y[s];
       counter++;
     }
 
     /* Start K-Means iterations. */
-    int numD[] = new int[K]; // Number of element associated with each center
-    int assoc[] = new int[N]; // Center association of each element
+    int numD[]; // Number of elements associated with each center
+    int assoc[]; // Center association of each element
     while (true) {
       numD = new int[K];
       assoc = new int[N];
@@ -112,19 +112,27 @@ public class EuclideanSequential {
       }
       /* Re-calculate center coordinates. */
       for (int cluster = 0; cluster < K; cluster++) {
-        MX[cluster] = XTotal[cluster] / numD[cluster];
-        MY[cluster] = YTotal[cluster] / numD[cluster];
+        /* Rare case: no data points associated with cluster. Center set to random point. */
+        if (numD[cluster] == 0) {
+          int indx = (int) (Math.random() * N);
+          MX[cluster] = X[indx];
+          MY[cluster] = Y[indx];
+          System.out.printf("Warning: no points assigned to cluster %d!\n", cluster);
+        } else {
+          MX[cluster] = XTotal[cluster] / numD[cluster];
+          MY[cluster] = YTotal[cluster] / numD[cluster];
+        }
       }
       /* Check if centers converge. */
-      boolean finish = true;
+      boolean converge = true;
       for (int i = 0; i < K; i++) {
         if (Math.sqrt(Math.pow(MX[i] - MXold[i], 2) + Math.pow(MY[i] - MYold[i], 2)) > Epsilon) {
-          finish = false;
+          converge = false;
           break;
         }
       }
       /* If all centers converge, complete! */
-      if (finish) {
+      if (converge) {
         break;
       }
       /* Update center coordinates. */
