@@ -102,15 +102,18 @@ for i in range(0, numClusters):
     centroidDNAs.append(newDNA)
 
 # step 2: generate the DNAs for each centroid
-points = []
-minDiffProbability = 0.05
+minDiffProbability = 0.1
 maxDiffProbability = 0.2
+dnas = []
 for i in range(0, numClusters):
     diffProbability = numpy.random.uniform(minDiffProbability, maxDiffProbability)
     cluster = centroidDNAs[i]
     for j in range(0, numStrands):
         # generate a DNA strand with specified probability of difference
         dna = genDNAfromCentroid(cluster, diffProbability)
+        while dna in dnas:
+            dna = genDNAfromCentroid(cluster, diffProbability)
         # write the DNA out
+        dnas.append(dna)
         writer.writerow([dna])
 
