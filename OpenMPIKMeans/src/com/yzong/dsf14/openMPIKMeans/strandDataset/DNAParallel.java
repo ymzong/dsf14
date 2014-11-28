@@ -68,7 +68,7 @@ public class DNAParallel {
    * 
    * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
    */
-  public void run(String[] args) {
+  public void run(String[] args) throws MPIException {
     /* All: Load MPI-related constants. */
     MyRank = MPI.COMM_WORLD.Rank();
     UnivSize = MPI.COMM_WORLD.Size();
@@ -246,8 +246,10 @@ public class DNAParallel {
       }
     }
 
-    /* Output result to user */
-    outputResult();
+    /* Writes result to local file. */
+    if (MyRank == MASTER_ID) {
+      outputResult();
+    }
   }
 
   /**
@@ -271,7 +273,7 @@ public class DNAParallel {
    * 
    * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
    */
-  private void extractInput(String[] args) {
+  private void extractInput(String[] args) throws MPIException {
     /* All: Parse command-line arguments. */
     try {
       InputFile = args[0];
@@ -369,7 +371,7 @@ public class DNAParallel {
       System.out.printf("Done!\n");
     } catch (IOException e) {
       System.out.printf("\nFailed to write to output file -- %s\n", e.getMessage());
-      System.exit(1);
+      return;
     }
   }
 
