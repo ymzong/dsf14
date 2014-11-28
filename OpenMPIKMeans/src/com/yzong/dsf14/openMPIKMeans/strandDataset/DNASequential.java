@@ -18,51 +18,36 @@ import java.util.Set;
  */
 public class DNASequential {
 
+  private String InputFile = "";
+  private int Epsilon = 0;
+  private int K = 0;
+  private int L = -1;
+  private int N;
+  private String DNAs[];
+  private String Centroids[];
+  private String CentroidsOld[];
+  private int assoc[];
+  private int numD[];
+  private int ATotal[][], CTotal[][], GTotal[][], TTotal[][];
+
   /**
    * Main function for sequential K-Means for DNA strands.
    * 
    * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
    */
   public static void main(String[] args) {
-    String InputFile = "";
-    int Epsilon = 0;
-    int K = 0;
-    int L = -1;
-    List<String> dnaList = new ArrayList<String>();
-    /* Parse command-line arguments. */
-    try {
-      InputFile = args[0];
-      K = Integer.parseInt(args[1]);
-      Epsilon = Math.max(1, Integer.parseInt(args[2]));
-    } catch (Exception e) {
-      System.out.printf("Usage: java com.yzong.dsf14.openMPIKMeans.strandDataset.DNASequential ");
-      System.out.printf("<InputFile> <#Clusters> <Threshold>\n");
-      System.exit(1);
-    }
+    DNASequential ds = new DNASequential();
+    ds.run(args);
+  }
 
-    /* Load dataset from input file. */
-    BufferedReader in;
-    try {
-      in = new BufferedReader(new FileReader(InputFile));
-      while (in.ready()) {
-        dnaList.add(in.readLine());
-      }
-      in.close();
-    } catch (IOException e) {
-      System.out.printf("Exception while reading input file -- %s\n", e.getMessage());
-      System.exit(1);
-    }
-    int N = dnaList.size();
-    if (N == 0) {
-      System.out.println("Empty dataset!");
-      System.exit(0);
-    }
-    String DNAs[] = new String[N];
-    for (int i = 0; i < N; i++) {
-      DNAs[i] = dnaList.get(i);
-    }
-    L = DNAs[0].length();
-    System.out.printf("Successfully loaded %d data points!\n", L);
+  /**
+   * Runs K-means sequential algorithm on DNA strands.
+   * 
+   * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
+   */
+  public void run(String[] args) {
+    /* Processes input parameters and data. */
+    extractInput(args);
 
     /* Pick K random strands as initial centers. Initialize arrays. */
     // Rule out trivial case.
@@ -75,8 +60,8 @@ public class DNASequential {
     while (subsetIdx.size() < K) {
       subsetIdx.add((int) (Math.random() * N));
     }
-    String CentroidsOld[] = new String[K];
-    String Centroids[] = new String[K];
+    CentroidsOld = new String[K];
+    Centroids = new String[K];
     int counter = 0;
     for (int s : subsetIdx) {
       CentroidsOld[counter] = DNAs[s];
@@ -84,15 +69,13 @@ public class DNASequential {
     }
 
     /* Start K-Means iterations. */
-    int assoc[]; // Center association of each element
-    int numD[]; // Number of strands in each cluster
     while (true) {
       assoc = new int[N];
       numD = new int[K];
-      int ATotal[][] = new int[K][L];
-      int CTotal[][] = new int[K][L];
-      int GTotal[][] = new int[K][L];
-      int TTotal[][] = new int[K][L];
+      ATotal = new int[K][L];
+      CTotal = new int[K][L];
+      GTotal = new int[K][L];
+      TTotal = new int[K][L];
       /* For each strand, calculate its similarity to all centers to re-associate it. */
       for (int elem = 0; elem < N; elem++) {
         int maxSimilarity = 0;
@@ -132,23 +115,7 @@ public class DNASequential {
           Centroids[cluster] = DNAs[indx];
           System.out.printf("Warning: no points assigned to cluster %d!\n", cluster);
         } else {
-          String c = "";
-          for (int l = 0; l < L; l++) {
-            int[] tmpArr =
-                {ATotal[cluster][l], CTotal[cluster][l], GTotal[cluster][l], TTotal[cluster][l]};
-            int[] tmpArrSorted = Arrays.copyOf(tmpArr, tmpArr.length);
-            Arrays.sort(tmpArrSorted);
-            if (tmpArr[0] == tmpArrSorted[tmpArr.length - 1]) {
-              c += "A";
-            } else if (tmpArr[1] == tmpArrSorted[tmpArr.length - 1]) {
-              c += "C";
-            } else if (tmpArr[2] == tmpArrSorted[tmpArr.length - 1]) {
-              c += "G";
-            } else if (tmpArr[3] == tmpArrSorted[tmpArr.length - 1]) {
-              c += "T";
-            }
-          }
-          Centroids[cluster] = c;
+          Centroids[cluster] = updatedCenter(cluster);
         }
       }
       /* Check if centers converge. */
@@ -169,6 +136,81 @@ public class DNASequential {
     }
 
     /* Output result to user */
+    outputResult();
+  }
+
+  /**
+   * Loads user parameters and data.
+   * 
+   * @param args <tt>InputFileName</tt>, <tt>NumberOfClusters</tt>, <tt>TerminationThreshold</tt>.
+   */
+  private void extractInput(String[] args) {
+    /* Parse command-line arguments. */
+    try {
+      InputFile = args[0];
+      K = Integer.parseInt(args[1]);
+      Epsilon = Math.max(1, Integer.parseInt(args[2]));
+    } catch (Exception e) {
+      System.out.printf("Usage: java com.yzong.dsf14.openMPIKMeans.strandDataset.DNASequential ");
+      System.out.printf("<InputFile> <#Clusters> <Threshold>\n");
+      System.exit(1);
+    }
+
+    /* Load dataset from input file. */
+    BufferedReader in;
+    List<String> dnaList = new ArrayList<String>();
+    try {
+      in = new BufferedReader(new FileReader(InputFile));
+      while (in.ready()) {
+        dnaList.add(in.readLine());
+      }
+      in.close();
+    } catch (IOException e) {
+      System.out.printf("Exception while reading input file -- %s\n", e.getMessage());
+      System.exit(1);
+    }
+    N = dnaList.size();
+    if (N == 0) {
+      System.out.println("Empty dataset!");
+      System.exit(0);
+    }
+    DNAs = new String[N];
+    for (int i = 0; i < N; i++) {
+      DNAs[i] = dnaList.get(i);
+    }
+    L = DNAs[0].length();
+    System.out.printf("Successfully loaded %d data points!\n", N);
+  }
+
+  /**
+   * Calculates new center based on statistics.
+   * 
+   * @param cluster Index of cluster to update
+   */
+  private String updatedCenter(int cluster) {
+    String c = "";
+    for (int l = 0; l < L; l++) {
+      int[] tmpArr =
+          {ATotal[cluster][l], CTotal[cluster][l], GTotal[cluster][l], TTotal[cluster][l]};
+      int[] tmpArrSorted = Arrays.copyOf(tmpArr, tmpArr.length);
+      Arrays.sort(tmpArrSorted);
+      if (tmpArr[0] == tmpArrSorted[tmpArr.length - 1]) {
+        c += "A";
+      } else if (tmpArr[1] == tmpArrSorted[tmpArr.length - 1]) {
+        c += "C";
+      } else if (tmpArr[2] == tmpArrSorted[tmpArr.length - 1]) {
+        c += "G";
+      } else if (tmpArr[3] == tmpArrSorted[tmpArr.length - 1]) {
+        c += "T";
+      }
+    }
+    return c;
+  }
+
+  /**
+   * Outputs final result to local file.
+   */
+  private void outputResult() {
     try {
       String OutputFile = InputFile + ".out";
       System.out.printf("Writing clustering result to `%s`...", OutputFile);
@@ -191,6 +233,13 @@ public class DNASequential {
     }
   }
 
+  /**
+   * Calculates the degree of similarity between two DNA strands.
+   * 
+   * @param dna1 First DNA strand
+   * @param dna2 Second DNA strand
+   * @return Similarity between two strands, i.e. number of identical bits
+   */
   private static int getSimilarity(String dna1, String dna2) {
     int score = dna1.length();
     for (int i = 0; i < dna1.length(); i++) {
