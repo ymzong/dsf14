@@ -152,7 +152,7 @@ public class EuclideanParallel {
           break; // If Master finds convergence, Worker instance breaks out of while loop.
         }
       }
-      /* Master: Gather the results from Workers. */
+      /* Master: Gather the results from Workers. Calculate new centers. */
       else {
         double doubleBuffer[] = new double[K];
         int intBuffer[] = new int[Math.max(chunkSize, K)];
