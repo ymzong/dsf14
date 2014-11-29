@@ -4,10 +4,10 @@ import numpy
 import getopt
 import math
 from random import randrange
-from scipy import stats
+import random
 
 def usage():
-    print '$> python generaterawdata.py <required args>\n' + \
+    print '$> python genDNA.py <required args>\n' + \
             '\t-c <#>\t\tNumber of clusters to generate\n' + \
             '\t-p <#>\t\tNumber of points per cluster\n' + \
             '\t-o <file>\tFilename for the output of the raw data\n' + \
@@ -22,6 +22,15 @@ def similarity(dna1, dna2):
         if dna1[i] != dna2[i]:
             n -= 1
     return n
+
+def genRandomVar(pList):
+    r = random.random()
+    sum = 0
+    for i in xrange(len(pList)):
+        sum += pList[i]
+        if sum > r:
+            return i
+    return -1   # Should not happen!
 
 def tooClose(dna, dnas, maxSimilarity):
     '''
@@ -76,12 +85,10 @@ def genDNA(length):
 def genDNAfromCentroid(d, prob):
     dna = ""
     prob = float(prob)
-    drift = numpy.arange(4)
     pk = (1-prob, prob/3, prob/3, prob/3)
-    driftRV = stats.rv_discrete(name='drift', values=(drift, pk))
     for i in xrange(len(d)):
         oldIdx = DNA_BITS.index(d[i])
-        newIdx = oldIdx + (driftRV.rvs(size = 1))[0]
+        newIdx = oldIdx + genRandomVar(pk)
         dna += DNA_BITS[newIdx % 4]
     return dna
 
