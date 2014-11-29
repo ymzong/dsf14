@@ -28,7 +28,7 @@ def genRandomVar(pList):
     sum = 0
     for i in xrange(len(pList)):
         sum += pList[i]
-        if sum > r:
+        if sum >= r:
             return i
     return -1   # Should not happen!
 
